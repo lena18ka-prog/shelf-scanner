@@ -2,95 +2,269 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Сканер сроков годности</title>
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; }
-        h1 { text-align: center; margin-bottom: 20px; color: #333; font-size: 24px; }
-        .info { background: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; color: #1976d2; }
-        .legend { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .legend-item { display: flex; align-items: center; gap: 5px; font-size: 14px; }
-        .legend-color { width: 20px; height: 20px; border-radius: 5px; }
-        .legend-color.green { background: #4caf50; }
-        .legend-color.yellow { background: #ff9800; }
-        .legend-color.red { background: #f44336; }
-        #reader { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; min-height: 100px; }
-        .status-box { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; display: none; }
-        .status-box.show { display: block; }
-        .status-box.error { background: #ffebee; color: #c62828; }
-        .status-box.success { background: #e8f5e9; color: #2e7d32; }
-        .status-box.info { background: #e3f2fd; color: #1565c0; }
-        .result-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; display: none; }
-        .result-card.active { display: block; }
-        .result-header { display: flex; align-items: center; gap: 15px; }
-        .color-indicator { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; }
-        .color-indicator.green { background: #4caf50; }
-        .color-indicator.yellow { background: #ff9800; }
-        .color-indicator.red { background: #f44336; }
-        .result-info h3 { margin-bottom: 5px; font-size: 20px; }
-        .result-info p { color: #666; font-size: 14px; margin-bottom: 3px; }
-        .action-btn { width: 100%; padding: 18px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; color: white; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: #000;
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        #reader {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+        
+        #reader video {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover;
+        }
+        
+        .scan-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 280px;
+            height: 280px;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        .scan-frame {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            border-radius: 20px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+        }
+        
+        .scan-corner {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #4caf50;
+        }
+        
+        .scan-corner.top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 15px 0 0 0; }
+        .scan-corner.top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; border-radius: 0 15px 0 0; }
+        .scan-corner.bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; border-radius: 0 0 0 15px; }
+        .scan-corner.bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; border-radius: 0 0 15px 0; }
+        
+        .scan-line {
+            position: absolute;
+            top: 50%;
+            left: 10%;
+            right: 10%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4caf50, transparent);
+            animation: scan 2s ease-in-out infinite;
+        }
+        
+        @keyframes scan {
+            0%, 100% { transform: translateY(-100px); opacity: 0; }
+            50% { transform: translateY(100px); opacity: 1; }
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+            width: 90%;
+            max-width: 400px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
         .btn-start { background: #4caf50; }
         .btn-stop { background: #f44336; }
-        .stats { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 20px; }
-        .stat-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .stat-item:last-child { border-bottom: none; }
+        
+        .status-bar {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .result-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 200;
+            display: none;
+            min-width: 280px;
+            text-align: center;
+        }
+        
+        .result-popup.show { display: block; animation: popIn 0.3s; }
+        
+        @keyframes popIn {
+            from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
+            to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+        
+        .result-color {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 50px;
+        }
+        
+        .result-color.green { background: #4caf50; }
+        .result-color.yellow { background: #ff9800; }
+        .result-color.red { background: #f44336; }
+        
+        .result-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+        .result-date { color: #666; font-size: 16px; margin-bottom: 5px; }
+        .result-days { color: #999; font-size: 14px; }
+        
+        .close-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .stats-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            z-index: 100;
+            font-size: 14px;
+            display: none;
+        }
+        
+        .stats-panel.show { display: block; }
+        
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-item:last-child { margin-bottom: 0; }
         .stat-label { color: #666; }
-        .stat-value { font-weight: bold; font-size: 18px; }
+        .stat-value { font-weight: bold; }
+        .stat-value.red { color: #f44336; }
+        .stat-value.yellow { color: #ff9800; }
+        
+        .hint {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            z-index: 100;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🔍 Сканер сроков годности</h1>
-        <div class="info">💡 Наведите камеру на DataMatrix код (Честный Знак). Система автоматически определит срок годности.</div>
-        <div id="statusBox" class="status-box"></div>
-        <div class="legend">
-            <div class="legend-item"><div class="legend-color green"></div><span>Зеленый: >2 дней</span></div>
-            <div class="legend-item"><div class="legend-color yellow"></div><span>Желтый: 1-2 дня</span></div>
-            <div class="legend-item"><div class="legend-color red"></div><span>Красный: ≤0 дней</span></div>
+    <div id="reader"></div>
+    
+    <div class="scan-overlay" id="scanOverlay" style="display: none;">
+        <div class="scan-frame"></div>
+        <div class="scan-corner top-left"></div>
+        <div class="scan-corner top-right"></div>
+        <div class="scan-corner bottom-left"></div>
+        <div class="scan-corner bottom-right"></div>
+        <div class="scan-line"></div>
+    </div>
+    
+    <div class="status-bar" id="statusBar">Нажмите "Включить камеру" для начала сканирования</div>
+    
+    <div class="hint" id="hint" style="display: none;">
+        Наведите камеру на DataMatrix код<br>
+        Держите на расстоянии 15-25 см
+    </div>
+    
+    <div class="stats-panel" id="statsPanel">
+        <div class="stat-item">
+            <span class="stat-label">Всего:</span>
+            <span class="stat-value" id="totalCount">0</span>
         </div>
-        <div id="reader"></div>
-        <div class="result-card" id="resultCard">
-            <div class="result-header">
-                <div class="color-indicator" id="colorIndicator"></div>
-                <div class="result-info">
-                    <h3 id="resultTitle">Товар отсканирован</h3>
-                    <p id="resultDate">Срок годности: --</p>
-                    <p id="resultDays">Осталось дней: --</p>
-                </div>
-            </div>
+        <div class="stat-item">
+            <span class="stat-label">Просрочено:</span>
+            <span class="stat-value red" id="expiredCount">0</span>
         </div>
-        <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()">📷 Включить камеру</button>
-        <div class="stats">
-            <div class="stat-item"><span class="stat-label">Всего отсканировано:</span><span class="stat-value" id="totalCount">0</span></div>
-            <div class="stat-item"><span class="stat-label">Просрочено:</span><span class="stat-value" id="expiredCount" style="color: #f44336;">0</span></div>
-            <div class="stat-item"><span class="stat-label">Истекает скоро:</span><span class="stat-value" id="warningCount" style="color: #ff9800;">0</span></div>
+        <div class="stat-item">
+            <span class="stat-label">Скоро:</span>
+            <span class="stat-value yellow" id="warningCount">0</span>
         </div>
     </div>
-    <script>
-        window.addEventListener('load', () => {
-            const statusBox = document.getElementById('statusBox');
-            if (typeof Html5Qrcode === 'undefined') {
-                statusBox.className = 'status-box show error';
-                statusBox.innerHTML = '️ Библиотека сканера не загрузилась.';
-            } else {
-                statusBox.className = 'status-box show success';
-                statusBox.innerHTML = '✅ Система готова. Нажмите "Включить камеру".';
-                setTimeout(() => { statusBox.classList.remove('show'); }, 3000);
-            }
-        });
+    
+    <div class="result-popup" id="resultPopup">
+        <div class="result-color" id="resultColor"></div>
+        <div class="result-title" id="resultTitle"></div>
+        <div class="result-date" id="resultDate"></div>
+        <div class="result-days" id="resultDays"></div>
+        <button class="close-btn" onclick="closeResult()">Продолжить</button>
+    </div>
+    
+    <div class="controls">
+        <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()">📷 Включить камеру</button>
+    </div>
 
+    <script>
         let html5QrcodeScanner;
         let isScanning = false;
         let scannedItems = [];
 
-        function showStatus(message, type) {
-            const statusBox = document.getElementById('statusBox');
-            statusBox.className = 'status-box show ' + type;
-            statusBox.innerHTML = message;
+        function showStatus(message) {
+            document.getElementById('statusBar').textContent = message;
         }
 
         function parseDataMatrix(rawData) {
@@ -110,101 +284,141 @@
             today.setHours(0, 0, 0, 0);
             const diffTime = expirationDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            if (diffDays <= 0) return { color: 'red', label: '🔴 Просрочен/сегодня', class: 'red' };
-            else if (diffDays <= 2) return { color: 'yellow', label: '⚠️ Истекает (1-2 дня)', class: 'yellow' };
-            else return { color: 'green', label: '🟢 Нормально', class: 'green' };
+            
+            if (diffDays <= 0) return { color: 'red', label: '🔴 Просрочен', emoji: '', class: 'red' };
+            else if (diffDays <= 2) return { color: 'yellow', label: '⚠️ Истекает', emoji: '⚠️', class: 'yellow' };
+            else return { color: 'green', label: '🟢 Нормально', emoji: '✅', class: 'green' };
         }
 
         async function toggleScan() {
-            if (isScanning) stopScanning();
-            else await startScanning();
+            if (isScanning) {
+                stopScanning();
+            } else {
+                await startScanning();
+            }
         }
 
         async function startScanning() {
             if (typeof Html5Qrcode === 'undefined') {
-                showStatus('⚠️ Библиотека не загружена.', 'error');
+                showStatus('⚠️ Библиотека не загружена');
                 return;
             }
-            if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-                showStatus('⚠️ Камера работает только по HTTPS.', 'error');
-                return;
-            }
-            showStatus('📡 Запрос доступа к камере...', 'info');
+            
+            showStatus('📡 Запуск камеры...');
+            
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                stream.getTracks().forEach(track => track.stop());
                 isScanning = true;
-                document.getElementById('startBtn').textContent = '⏹️ Выключить камеру';
+                document.getElementById('startBtn').textContent = '⏹️ Выключить';
                 document.getElementById('startBtn').classList.remove('btn-start');
                 document.getElementById('startBtn').classList.add('btn-stop');
+                document.getElementById('scanOverlay').style.display = 'block';
+                document.getElementById('hint').style.display = 'block';
+                document.getElementById('statsPanel').classList.add('show');
+                
                 html5QrcodeScanner = new Html5Qrcode("reader");
-                const config = { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
-                await html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure);
-                showStatus('✅ Камера активна.', 'success');
-                setTimeout(() => { document.getElementById('statusBox').classList.remove('show'); }, 3000);
+                
+                const config = { 
+                    fps: 15,
+                    qrbox: { width: 280, height: 280 },
+                    aspectRatio: 1.0,
+                    disableFlip: false,
+                    videoConstraints: {
+                        facingMode: 'environment',
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        focusMode: 'continuous',
+                        zoom: 1.5
+                    }
+                };
+                
+                await html5QrcodeScanner.start(
+                    { facingMode: "environment" },
+                    config,
+                    onScanSuccess,
+                    onScanFailure
+                );
+                
+                showStatus('✅ Камера активна. Наведите на код');
+                
             } catch (err) {
                 console.error('Ошибка:', err);
                 isScanning = false;
                 document.getElementById('startBtn').textContent = '📷 Включить камеру';
-                showStatus('❌ Ошибка: ' + err.message, 'error');
+                showStatus('❌ Ошибка: ' + err.message);
             }
         }
 
         function stopScanning() {
             isScanning = false;
             if (html5QrcodeScanner) {
-                html5QrcodeScanner.stop().then(() => { html5QrcodeScanner.clear(); html5QrcodeScanner = null; });
+                html5QrcodeScanner.stop().then(() => { 
+                    html5QrcodeScanner.clear(); 
+                    html5QrcodeScanner = null;
+                });
             }
             document.getElementById('startBtn').textContent = '📷 Включить камеру';
             document.getElementById('startBtn').classList.remove('btn-stop');
             document.getElementById('startBtn').classList.add('btn-start');
+            document.getElementById('scanOverlay').style.display = 'none';
+            document.getElementById('hint').style.display = 'none';
+            document.getElementById('statsPanel').classList.remove('show');
+            showStatus('Камера выключена');
         }
 
         function onScanSuccess(decodedText, decodedResult) {
-            console.log("Код:", decodedText);
             if (scannedItems.find(item => item.code === decodedText)) return;
+            
             const expirationDate = parseDataMatrix(decodedText);
+            
             if (expirationDate) {
                 const status = getColorStatus(expirationDate);
                 const item = { code: decodedText, date: expirationDate, status: status, time: new Date() };
                 scannedItems.push(item);
                 showResult(item);
                 updateStats();
+                
                 if (navigator.vibrate) {
                     if (status.color === 'red') navigator.vibrate([200, 100, 200]);
                     else if (status.color === 'yellow') navigator.vibrate(100);
                     else navigator.vibrate(50);
                 }
             } else {
-                showStatus('📦 Код: ' + decodedText.substring(0, 80) + (decodedText.length > 80 ? '...' : ''), 'info');
-                setTimeout(() => { document.getElementById('statusBox').classList.remove('show'); }, 5000);
+                showStatus('📦 Код распознан, но дата не найдена');
+                setTimeout(() => { showStatus('✅ Камера активна. Наведите на код'); }, 3000);
             }
         }
 
         function onScanFailure(error) { }
 
         function showResult(item) {
-            const card = document.getElementById('resultCard');
-            const indicator = document.getElementById('colorIndicator');
+            const popup = document.getElementById('resultPopup');
+            const color = document.getElementById('resultColor');
             const title = document.getElementById('resultTitle');
             const date = document.getElementById('resultDate');
             const days = document.getElementById('resultDays');
+            
             const dateStr = item.date.toLocaleDateString('ru-RU');
             const today = new Date();
             const diffDays = Math.ceil((item.date - today) / (1000 * 60 * 60 * 24));
-            indicator.className = 'color-indicator ' + item.status.class;
-            indicator.textContent = item.status.color === 'red' ? '' : (item.status.color === 'yellow' ? '⚠️' : '✅');
+            
+            color.className = 'result-color ' + item.status.class;
+            color.textContent = item.status.emoji;
             title.textContent = item.status.label;
-            date.textContent = 'Срок годности: ' + dateStr;
-            days.textContent = 'Осталось дней: ' + diffDays;
-            card.classList.add('active');
-            setTimeout(() => { card.classList.remove('active'); }, 3000);
+            date.textContent = 'Срок: ' + dateStr;
+            days.textContent = 'Осталось: ' + diffDays + ' дн.';
+            
+            popup.classList.add('show');
+        }
+
+        function closeResult() {
+            document.getElementById('resultPopup').classList.remove('show');
         }
 
         function updateStats() {
             const total = scannedItems.length;
             const expired = scannedItems.filter(i => i.status.color === 'red').length;
             const warning = scannedItems.filter(i => i.status.color === 'yellow').length;
+            
             document.getElementById('totalCount').textContent = total;
             document.getElementById('expiredCount').textContent = expired;
             document.getElementById('warningCount').textContent = warning;
