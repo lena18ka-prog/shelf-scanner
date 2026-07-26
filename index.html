@@ -102,7 +102,6 @@
             text-align: center;
         }
         
-        /* Компактное уведомление о результате */
         .result-notification {
             position: fixed;
             top: 70px;
@@ -124,11 +123,7 @@
             to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
         
-        .result-header {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+        .result-header { display: flex; align-items: center; gap: 12px; }
         
         .result-color {
             width: 50px;
@@ -148,8 +143,8 @@
         .result-title { font-size: 16px; font-weight: bold; margin-bottom: 3px; }
         .result-date { color: #666; font-size: 13px; }
         .result-days { color: #999; font-size: 12px; }
+        .result-source { color: #2196f3; font-size: 11px; font-weight: bold; }
         
-        /* Список последних отсканированных */
         .recent-list {
             position: fixed;
             left: 15px;
@@ -198,6 +193,22 @@
         .stat-value.red { color: #f44336; }
         .stat-value.yellow { color: #ff9800; }
         
+        .db-indicator {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: rgba(156, 39, 176, 0.95);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+            cursor: pointer;
+        }
+        .db-indicator.show { display: block; }
+        
         .hint {
             position: fixed;
             bottom: 80px;
@@ -234,7 +245,6 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
         
-        /* Модальное окно ручного ввода */
         .manual-modal {
             position: fixed;
             top: 50%;
@@ -264,6 +274,16 @@
         .manual-modal .modal-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; color: white; }
         .btn-confirm { background: #4caf50; }
         .btn-cancel { background: #9e9e9e; }
+        .db-hint { 
+            background: #e3f2fd; 
+            padding: 8px; 
+            border-radius: 6px; 
+            font-size: 12px; 
+            color: #1976d2; 
+            margin-bottom: 12px;
+            display: none;
+        }
+        .db-hint.show { display: block; }
         
         .overlay-bg {
             position: fixed;
@@ -274,10 +294,56 @@
         }
         .overlay-bg.show { display: block; }
         
+        .db-view-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 300;
+            display: none;
+            min-width: 300px;
+            max-width: 90%;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .db-view-modal.show { display: block; }
+        .db-view-modal h3 { margin-bottom: 12px; font-size: 16px; }
+        .db-entry {
+            padding: 8px;
+            margin-bottom: 6px;
+            background: #f5f5f5;
+            border-radius: 6px;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .db-entry-gtin { font-family: monospace; font-size: 12px; color: #333; }
+        .db-entry-date { color: #666; }
+        .db-entry-delete {
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 11px;
+            cursor: pointer;
+        }
+        .db-empty { text-align: center; color: #999; padding: 20px; }
+        .db-view-buttons { display: flex; gap: 8px; margin-top: 12px; }
+        .db-view-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; color: white; }
+        .btn-clear-db { background: #f44336; }
+        .btn-close-db { background: #9e9e9e; }
+        
         .timer {
             position: fixed;
             top: 15px;
-            left: 15px;
+            left: 50%;
+            transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.95);
             padding: 8px 12px;
             border-radius: 10px;
@@ -285,6 +351,7 @@
             font-weight: bold;
             z-index: 100;
             display: none;
+            margin-top: 50px;
         }
         .timer.show { display: block; }
     </style>
@@ -304,6 +371,8 @@
     <div class="status-bar" id="statusBar">Нажмите "Включить"</div>
     
     <div class="timer" id="timer">⏱️ 00:00</div>
+    
+    <div class="db-indicator" id="dbIndicator" onclick="viewDatabase()"> База: 0</div>
     
     <div class="hint" id="hint" style="display: none;">
         📏 10-15 см | 💡 Включите вспышку
@@ -338,6 +407,7 @@
                 <div class="result-title" id="resultTitle"></div>
                 <div class="result-date" id="resultDate"></div>
                 <div class="result-days" id="resultDays"></div>
+                <div class="result-source" id="resultSource"></div>
             </div>
         </div>
     </div>
@@ -349,8 +419,10 @@
     </div>
     
     <div class="overlay-bg" id="overlayBg"></div>
+    
     <div class="manual-modal" id="manualModal">
         <h3>✏️ Ввести срок годности</h3>
+        <div class="db-hint" id="dbHint">✅ Этот GTIN уже есть в базе!</div>
         <label>GTIN товара:</label>
         <input type="text" id="manualGtin" placeholder="0460060503352">
         <label>Срок годности (ДД.ММ.ГГГГ):</label>
@@ -358,6 +430,15 @@
         <div class="modal-buttons">
             <button class="btn-cancel" onclick="closeManual()">Отмена</button>
             <button class="btn-confirm" onclick="saveManual()">Сохранить</button>
+        </div>
+    </div>
+    
+    <div class="db-view-modal" id="dbViewModal">
+        <h3>💾 База данных товаров</h3>
+        <div id="dbViewContent"></div>
+        <div class="db-view-buttons">
+            <button class="btn-clear-db" onclick="clearDatabase()">🗑️ Очистить всё</button>
+            <button class="btn-close-db" onclick="closeDbView()">Закрыть</button>
         </div>
     </div>
 
@@ -373,21 +454,47 @@
         let startTime;
         let resultTimeout;
         
-        let gtinDatabase = JSON.parse(localStorage.getItem('gtinDatabase') || '{}');
+        // Загрузка базы из localStorage
+        let gtinDatabase = {};
+        try {
+            const saved = localStorage.getItem('gtinDatabase');
+            if (saved) gtinDatabase = JSON.parse(saved);
+        } catch(e) {
+            console.error('Ошибка загрузки базы:', e);
+        }
+        
+        // Нормализация GTIN: убираем ведущие нули и пробелы
+        function normalizeGTIN(gtin) {
+            if (!gtin) return '';
+            return gtin.replace(/\s/g, '').replace(/^0+/, '') || '0';
+        }
 
         function showStatus(message) {
             document.getElementById('statusBar').textContent = message;
         }
 
+        function updateDbIndicator() {
+            const count = Object.keys(gtinDatabase).length;
+            const indicator = document.getElementById('dbIndicator');
+            indicator.textContent = `💾 База: ${count}`;
+            if (count > 0) indicator.classList.add('show');
+            else indicator.classList.remove('show');
+        }
+
         function extractGTIN(rawData) {
-            const match = rawData.match(/01(\d{14})/);
-            if (match) return match[1];
+            // Ищем тег 01 (14 цифр) или просто 13-14 цифр подряд
+            const match14 = rawData.match(/01(\d{14})/);
+            if (match14) return match14[1];
             const match13 = rawData.match(/01(\d{13})/);
             if (match13) return match13[1];
+            // Резервный поиск: любая последовательность 13-14 цифр
+            const matchAny = rawData.match(/(\d{13,14})/);
+            if (matchAny) return matchAny[1];
             return null;
         }
 
         function parseDataMatrix(rawData) {
+            // 1. Тег 17 (стандартный срок годности GS1)
             const match17 = rawData.match(/17(\d{6})/);
             if (match17) {
                 const dateStr = match17[1];
@@ -397,6 +504,7 @@
                 return { date: new Date(year, month, day), source: 'тег 17' };
             }
             
+            // 2. Тег 91 (если содержит 6 цифр даты)
             const match91 = rawData.match(/91(\d{6})/);
             if (match91) {
                 const dateStr = match91[1];
@@ -408,14 +516,21 @@
                 }
             }
             
-            const gtin = extractGTIN(rawData);
-            if (gtin && gtinDatabase[gtin]) {
-                const parts = gtinDatabase[gtin].split('.');
-                if (parts.length === 3) {
-                    const day = parseInt(parts[0]);
-                    const month = parseInt(parts[1]) - 1;
-                    const year = parseInt(parts[2]);
-                    return { date: new Date(year, month, day), source: 'база' };
+            // 3. Поиск в локальной базе по GTIN (с нормализацией!)
+            const rawGtin = extractGTIN(rawData);
+            if (rawGtin) {
+                const normalizedGtin = normalizeGTIN(rawGtin);
+                // Ищем совпадение в базе (сравниваем нормализованные GTIN)
+                for (const dbGtin in gtinDatabase) {
+                    if (normalizeGTIN(dbGtin) === normalizedGtin) {
+                        const parts = gtinDatabase[dbGtin].split('.');
+                        if (parts.length === 3) {
+                            const day = parseInt(parts[0]);
+                            const month = parseInt(parts[1]) - 1;
+                            const year = parseInt(parts[2]);
+                            return { date: new Date(year, month, day), source: 'база', gtin: dbGtin };
+                        }
+                    }
                 }
             }
             
@@ -440,17 +555,18 @@
 
         async function startScanning() {
             if (typeof Html5Qrcode === 'undefined') {
-                showStatus('️ Библиотека не загружена');
+                showStatus('⚠️ Библиотека не загружена');
                 return;
             }
             
-            showStatus(' Запуск...');
+            showStatus('🚀 Запуск...');
             
             try {
                 isScanning = true;
                 scannedItems = [];
                 updateStats();
                 updateRecentList();
+                updateDbIndicator();
                 
                 document.getElementById('startBtn').textContent = '⏹️';
                 document.getElementById('startBtn').classList.remove('btn-start');
@@ -495,13 +611,14 @@
                     onScanFailure
                 );
                 
-                showStatus('✅ Сканируйте');
+                const dbCount = Object.keys(gtinDatabase).length;
+                showStatus(`✅ Сканируйте (база: ${dbCount})`);
                 
             } catch (err) {
                 console.error('Ошибка:', err);
                 isScanning = false;
                 document.getElementById('startBtn').textContent = ' Включить';
-                showStatus('❌ ' + err.message);
+                showStatus(' ' + err.message);
             }
         }
 
@@ -547,7 +664,6 @@
 
         function toggleFlash() {
             isFlashOn = !isFlashOn;
-            document.getElementById('flashBtn').textContent = isFlashOn ? '💡' : '💡';
             
             if (html5QrcodeScanner) {
                 try {
@@ -560,7 +676,6 @@
 
         function onScanSuccess(decodedText, decodedResult) {
             const now = Date.now();
-            // Защита от повторного сканирования (минимум 1 секунда между сканами)
             if (now - lastScanTime < 1000) return;
             lastScanTime = now;
             
@@ -571,7 +686,7 @@
                 const status = getColorStatus(parsed.date);
                 const item = { 
                     code: decodedText, 
-                    gtin: gtin,
+                    gtin: parsed.gtin || gtin,
                     date: parsed.date, 
                     status: status, 
                     source: parsed.source,
@@ -588,7 +703,6 @@
                     else navigator.vibrate(50);
                 }
                 
-                // Звуковой сигнал
                 playBeep(status.color);
             } else {
                 showStatus('📦 Дата не найдена → ✏️');
@@ -596,7 +710,10 @@
                     document.getElementById('manualGtin').value = gtin;
                 }
                 setTimeout(() => { 
-                    if (isScanning) showStatus('✅ Сканируйте'); 
+                    if (isScanning) {
+                        const dbCount = Object.keys(gtinDatabase).length;
+                        showStatus(`✅ Сканируйте (база: ${dbCount})`);
+                    }
                 }, 2000);
             }
         }
@@ -609,6 +726,7 @@
             const title = document.getElementById('resultTitle');
             const date = document.getElementById('resultDate');
             const days = document.getElementById('resultDays');
+            const source = document.getElementById('resultSource');
             
             const dateStr = item.date.toLocaleDateString('ru-RU');
             
@@ -617,6 +735,14 @@
             title.textContent = item.status.label;
             date.textContent = dateStr;
             days.textContent = item.status.days + ' дн.';
+            
+            const sourceLabels = {
+                'тег 17': '📡 Тег 17',
+                'тег 91': '📡 Тег 91',
+                'база': ' Из базы',
+                'ручной': '✏️ Ручной ввод'
+            };
+            source.textContent = sourceLabels[item.source] || item.source;
             
             notif.classList.add('show');
             
@@ -647,7 +773,7 @@
                 div.className = 'recent-item ' + item.status.class;
                 div.innerHTML = `
                     <div>${item.status.emoji} ${item.status.days}д</div>
-                    <div class="recent-gtin">${item.gtin || 'N/A'}</div>
+                    <div class="recent-gtin">${item.gtin ? item.gtin.substr(-6) : 'N/A'}</div>
                 `;
                 list.appendChild(div);
             });
@@ -684,12 +810,48 @@
         function openManual() {
             document.getElementById('overlayBg').classList.add('show');
             document.getElementById('manualModal').classList.add('show');
+            checkGtinInDb();
         }
 
         function closeManual() {
             document.getElementById('overlayBg').classList.remove('show');
             document.getElementById('manualModal').classList.remove('show');
+            document.getElementById('dbHint').classList.remove('show');
         }
+
+        // Проверяет, есть ли GTIN уже в базе
+        function checkGtinInDb() {
+            const gtin = document.getElementById('manualGtin').value.trim();
+            const hint = document.getElementById('dbHint');
+            
+            if (!gtin) {
+                hint.classList.remove('show');
+                return;
+            }
+            
+            const normalized = normalizeGTIN(gtin);
+            let found = false;
+            let foundDate = '';
+            
+            for (const dbGtin in gtinDatabase) {
+                if (normalizeGTIN(dbGtin) === normalized) {
+                    found = true;
+                    foundDate = gtinDatabase[dbGtin];
+                    break;
+                }
+            }
+            
+            if (found) {
+                hint.textContent = `✅ Этот GTIN уже в базе: ${foundDate}`;
+                hint.classList.add('show');
+                document.getElementById('manualDate').value = foundDate;
+            } else {
+                hint.classList.remove('show');
+            }
+        }
+
+        // Слушатель ввода GTIN для автопроверки
+        document.getElementById('manualGtin').addEventListener('input', checkGtinInDb);
 
         function saveManual() {
             const gtin = document.getElementById('manualGtin').value.trim();
@@ -711,13 +873,23 @@
             const year = parseInt(dateMatch[3]);
             const expDate = new Date(year, month, day);
             
-            gtinDatabase[gtin] = dateStr;
-            localStorage.setItem('gtinDatabase', JSON.stringify(gtinDatabase));
+            // Сохраняем с нормализованным GTIN как ключ
+            const normalizedGtin = normalizeGTIN(gtin);
+            gtinDatabase[normalizedGtin] = dateStr;
+            
+            // Сохраняем в localStorage
+            try {
+                localStorage.setItem('gtinDatabase', JSON.stringify(gtinDatabase));
+            } catch(e) {
+                console.error('Ошибка сохранения:', e);
+                alert('Ошибка сохранения в базу!');
+                return;
+            }
             
             const status = getColorStatus(expDate);
             const item = { 
                 code: 'Ручной: ' + gtin, 
-                gtin: gtin,
+                gtin: normalizedGtin,
                 date: expDate, 
                 status: status, 
                 source: 'ручной',
@@ -727,13 +899,69 @@
             showNotification(item);
             updateStats();
             updateRecentList();
+            updateDbIndicator();
             
             closeManual();
             document.getElementById('manualGtin').value = '';
             document.getElementById('manualDate').value = '';
             
-            showStatus('✅ Сохранено!');
+            showStatus(`✅ Сохранено! База: ${Object.keys(gtinDatabase).length}`);
         }
+
+        function viewDatabase() {
+            const content = document.getElementById('dbViewContent');
+            const entries = Object.entries(gtinDatabase);
+            
+            if (entries.length === 0) {
+                content.innerHTML = '<div class="db-empty">База пуста</div>';
+            } else {
+                content.innerHTML = entries.map(([gtin, date]) => `
+                    <div class="db-entry">
+                        <div>
+                            <div class="db-entry-gtin">${gtin}</div>
+                            <div class="db-entry-date">до ${date}</div>
+                        </div>
+                        <button class="db-entry-delete" onclick="deleteFromDb('${gtin}')">Удалить</button>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('overlayBg').classList.add('show');
+            document.getElementById('dbViewModal').classList.add('show');
+        }
+
+        function closeDbView() {
+            document.getElementById('overlayBg').classList.remove('show');
+            document.getElementById('dbViewModal').classList.remove('show');
+        }
+
+        function deleteFromDb(gtin) {
+            if (confirm(`Удалить ${gtin} из базы?`)) {
+                delete gtinDatabase[gtin];
+                localStorage.setItem('gtinDatabase', JSON.stringify(gtinDatabase));
+                updateDbIndicator();
+                viewDatabase(); // Обновить список
+            }
+        }
+
+        function clearDatabase() {
+            if (confirm('Удалить ВСЕ товары из базы? Это действие нельзя отменить.')) {
+                gtinDatabase = {};
+                localStorage.setItem('gtinDatabase', JSON.stringify(gtinDatabase));
+                updateDbIndicator();
+                closeDbView();
+                showStatus('🗑️ База очищена');
+            }
+        }
+
+        // Закрытие модалок по клику на фон
+        document.getElementById('overlayBg').addEventListener('click', () => {
+            closeManual();
+            closeDbView();
+        });
+
+        // Инициализация индикатора при загрузке
+        updateDbIndicator();
 
         window.addEventListener('beforeunload', () => { if (isScanning) stopScanning(); });
     </script>
