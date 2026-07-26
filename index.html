@@ -137,7 +137,7 @@
             </div>
         </div>
         
-        <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()">📷 Включить камеру</button>
+        <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()"> Включить камеру</button>
         
         <div class="stats">
             <div class="stat-item"><span class="stat-label">Всего отсканировано:</span><span class="stat-value" id="totalCount">0</span></div>
@@ -147,19 +147,17 @@
     </div>
 
     <script>
-        // Диагностика при загрузке
         window.addEventListener('load', () => {
             const statusBox = document.getElementById('statusBox');
             if (typeof Html5Qrcode === 'undefined') {
                 statusBox.className = 'status-box show error';
-                statusBox.innerHTML = '️ Библиотека сканера не загрузилась. Проверьте интернет-соединение и обновите страницу.';
+                statusBox.innerHTML = '⚠️ Библиотека сканера не загрузилась. Проверьте интернет-соединение и обновите страницу.';
             } else {
                 statusBox.className = 'status-box show success';
                 statusBox.innerHTML = '✅ Система готова к работе. Нажмите "Включить камеру".';
                 setTimeout(() => { statusBox.classList.remove('show'); }, 3000);
             }
             
-            // Проверка поддержки камеры
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 statusBox.className = 'status-box show error';
                 statusBox.innerHTML = '❌ Ваш браузер не поддерживает доступ к камере. Попробуйте Safari или Chrome.';
@@ -208,30 +206,26 @@
         }
 
         async function startScanning() {
-            // Проверка библиотеки
             if (typeof Html5Qrcode === 'undefined') {
                 showStatus('⚠️ Библиотека не загружена. Обновите страницу.', 'error');
                 return;
             }
             
-            // Проверка HTTPS
             if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
                 showStatus('⚠️ Камера работает только по HTTPS. Откройте ссылку из GitHub Pages.', 'error');
                 return;
             }
             
-            showStatus(' Запрос доступа к камере...', 'info');
+            showStatus('📡 Запрос доступа к камере...', 'info');
             
             try {
-                // Явный запрос разрешения на камеру
                 const stream = await navigator.mediaDevices.getUserMedia({ 
                     video: { facingMode: 'environment' } 
                 });
-                // Останавливаем stream, библиотека сама его создаст
                 stream.getTracks().forEach(track => track.stop());
                 
                 isScanning = true;
-                document.getElementById('startBtn').textContent = '⏹️ Выключить камеру';
+                document.getElementById('startBtn').textContent = '️ Выключить камеру';
                 document.getElementById('startBtn').classList.remove('btn-start');
                 document.getElementById('startBtn').classList.add('btn-stop');
                 
@@ -279,7 +273,7 @@
                     html5QrcodeScanner = null;
                 }).catch(err => console.error("Ошибка остановки:", err));
             }
-            document.getElementById('startBtn').textContent = '📷 Включить камеру';
+            document.getElementById('startBtn').textContent = ' Включить камеру';
             document.getElementById('startBtn').classList.remove('btn-stop');
             document.getElementById('startBtn').classList.add('btn-start');
             showStatus('⏹️ Камера выключена.', 'info');
@@ -324,7 +318,7 @@
             
             indicator.className = 'color-indicator ' + item.status.class;
             indicator.textContent = item.status.color === 'red' ? '' : 
-                                    item.status.color === 'yellow' ? '⚠️' : '✅';
+                                    item.status.color === 'yellow' ? '️' : '✅';
             title.textContent = item.status.label;
             date.textContent = 'Срок годности: ' + dateStr;
             days.textContent = 'Осталось дней: ' + diffDays;
