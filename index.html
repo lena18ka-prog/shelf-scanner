@@ -7,101 +7,36 @@
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
-            background: #f5f5f5;
-            padding: 20px;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background: #f5f5f5; padding: 20px; }
         .container { max-width: 600px; margin: 0 auto; }
         h1 { text-align: center; margin-bottom: 20px; color: #333; font-size: 24px; }
-        .info {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #1976d2;
-        }
+        .info { background: #e3f2fd; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; color: #1976d2; }
         .legend { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         .legend-item { display: flex; align-items: center; gap: 5px; font-size: 14px; }
         .legend-color { width: 20px; height: 20px; border-radius: 5px; }
         .legend-color.green { background: #4caf50; }
         .legend-color.yellow { background: #ff9800; }
         .legend-color.red { background: #f44336; }
-        
-        #reader {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            min-height: 100px;
-        }
-        
-        .status-box {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
-        }
+        #reader { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; min-height: 100px; }
+        .status-box { background: white; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-size: 14px; display: none; }
         .status-box.show { display: block; }
         .status-box.error { background: #ffebee; color: #c62828; }
         .status-box.success { background: #e8f5e9; color: #2e7d32; }
         .status-box.info { background: #e3f2fd; color: #1565c0; }
-        
-        .result-card {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-            display: none;
-        }
+        .result-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; display: none; }
         .result-card.active { display: block; }
         .result-header { display: flex; align-items: center; gap: 15px; }
-        .color-indicator {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-        }
+        .color-indicator { width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; }
         .color-indicator.green { background: #4caf50; }
         .color-indicator.yellow { background: #ff9800; }
         .color-indicator.red { background: #f44336; }
         .result-info h3 { margin-bottom: 5px; font-size: 20px; }
         .result-info p { color: #666; font-size: 14px; margin-bottom: 3px; }
-        
-        .action-btn {
-            width: 100%;
-            padding: 18px;
-            border: none;
-            border-radius: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            color: white;
-        }
+        .action-btn { width: 100%; padding: 18px; border: none; border-radius: 12px; font-size: 18px; font-weight: bold; cursor: pointer; color: white; }
         .btn-start { background: #4caf50; }
         .btn-stop { background: #f44336; }
-        
-        .stats {
-            background: white;
-            padding: 20px;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            margin-top: 20px;
-        }
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #eee;
-        }
+        .stats { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-top: 20px; }
+        .stat-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
         .stat-item:last-child { border-bottom: none; }
         .stat-label { color: #666; }
         .stat-value { font-weight: bold; font-size: 18px; }
@@ -110,22 +45,14 @@
 <body>
     <div class="container">
         <h1>🔍 Сканер сроков годности</h1>
-        
-        <div class="info">
-            💡 Наведите камеру на DataMatrix код (Честный Знак) на товаре.<br>
-            Система автоматически определит срок годности и покажет цветную индикацию.
-        </div>
-        
+        <div class="info">💡 Наведите камеру на DataMatrix код (Честный Знак). Система автоматически определит срок годности.</div>
         <div id="statusBox" class="status-box"></div>
-        
         <div class="legend">
             <div class="legend-item"><div class="legend-color green"></div><span>Зеленый: >2 дней</span></div>
             <div class="legend-item"><div class="legend-color yellow"></div><span>Желтый: 1-2 дня</span></div>
             <div class="legend-item"><div class="legend-color red"></div><span>Красный: ≤0 дней</span></div>
         </div>
-        
         <div id="reader"></div>
-        
         <div class="result-card" id="resultCard">
             <div class="result-header">
                 <div class="color-indicator" id="colorIndicator"></div>
@@ -136,31 +63,23 @@
                 </div>
             </div>
         </div>
-        
-        <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()"> Включить камеру</button>
-        
+        <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()">📷 Включить камеру</button>
         <div class="stats">
             <div class="stat-item"><span class="stat-label">Всего отсканировано:</span><span class="stat-value" id="totalCount">0</span></div>
             <div class="stat-item"><span class="stat-label">Просрочено:</span><span class="stat-value" id="expiredCount" style="color: #f44336;">0</span></div>
             <div class="stat-item"><span class="stat-label">Истекает скоро:</span><span class="stat-value" id="warningCount" style="color: #ff9800;">0</span></div>
         </div>
     </div>
-
     <script>
         window.addEventListener('load', () => {
             const statusBox = document.getElementById('statusBox');
             if (typeof Html5Qrcode === 'undefined') {
                 statusBox.className = 'status-box show error';
-                statusBox.innerHTML = '⚠️ Библиотека сканера не загрузилась. Проверьте интернет-соединение и обновите страницу.';
+                statusBox.innerHTML = '️ Библиотека сканера не загрузилась.';
             } else {
                 statusBox.className = 'status-box show success';
-                statusBox.innerHTML = '✅ Система готова к работе. Нажмите "Включить камеру".';
+                statusBox.innerHTML = '✅ Система готова. Нажмите "Включить камеру".';
                 setTimeout(() => { statusBox.classList.remove('show'); }, 3000);
-            }
-            
-            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                statusBox.className = 'status-box show error';
-                statusBox.innerHTML = '❌ Ваш браузер не поддерживает доступ к камере. Попробуйте Safari или Chrome.';
             }
         });
 
@@ -191,115 +110,74 @@
             today.setHours(0, 0, 0, 0);
             const diffTime = expirationDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
             if (diffDays <= 0) return { color: 'red', label: '🔴 Просрочен/сегодня', class: 'red' };
             else if (diffDays <= 2) return { color: 'yellow', label: '⚠️ Истекает (1-2 дня)', class: 'yellow' };
             else return { color: 'green', label: '🟢 Нормально', class: 'green' };
         }
 
         async function toggleScan() {
-            if (isScanning) {
-                stopScanning();
-            } else {
-                await startScanning();
-            }
+            if (isScanning) stopScanning();
+            else await startScanning();
         }
 
         async function startScanning() {
             if (typeof Html5Qrcode === 'undefined') {
-                showStatus('⚠️ Библиотека не загружена. Обновите страницу.', 'error');
+                showStatus('⚠️ Библиотека не загружена.', 'error');
                 return;
             }
-            
             if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
-                showStatus('⚠️ Камера работает только по HTTPS. Откройте ссылку из GitHub Pages.', 'error');
+                showStatus('⚠️ Камера работает только по HTTPS.', 'error');
                 return;
             }
-            
             showStatus('📡 Запрос доступа к камере...', 'info');
-            
             try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: 'environment' } 
-                });
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
                 stream.getTracks().forEach(track => track.stop());
-                
                 isScanning = true;
-                document.getElementById('startBtn').textContent = '️ Выключить камеру';
+                document.getElementById('startBtn').textContent = '⏹️ Выключить камеру';
                 document.getElementById('startBtn').classList.remove('btn-start');
                 document.getElementById('startBtn').classList.add('btn-stop');
-                
                 html5QrcodeScanner = new Html5Qrcode("reader");
-                const config = { 
-                    fps: 10, 
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0
-                };
-                
-                await html5QrcodeScanner.start(
-                    { facingMode: "environment" },
-                    config,
-                    onScanSuccess,
-                    onScanFailure
-                );
-                
-                showStatus('✅ Камера активна. Наведите на DataMatrix код.', 'success');
+                const config = { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 };
+                await html5QrcodeScanner.start({ facingMode: "environment" }, config, onScanSuccess, onScanFailure);
+                showStatus('✅ Камера активна.', 'success');
                 setTimeout(() => { document.getElementById('statusBox').classList.remove('show'); }, 3000);
-                
             } catch (err) {
-                console.error('Ошибка камеры:', err);
+                console.error('Ошибка:', err);
                 isScanning = false;
                 document.getElementById('startBtn').textContent = '📷 Включить камеру';
-                
-                let errorMsg = '❌ Не удалось включить камеру. ';
-                if (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError') {
-                    errorMsg += 'Вы запретили доступ к камере. Разрешите в Настройки → Safari → Камера.';
-                } else if (err.name === 'NotFoundError' || err.name === 'DevicesNotFoundError') {
-                    errorMsg += 'Камера не найдена на устройстве.';
-                } else if (err.name === 'NotReadableError' || err.name === 'TrackStartError') {
-                    errorMsg += 'Камера занята другим приложением.';
-                } else {
-                    errorMsg += 'Ошибка: ' + err.message;
-                }
-                showStatus(errorMsg, 'error');
+                showStatus('❌ Ошибка: ' + err.message, 'error');
             }
         }
 
         function stopScanning() {
             isScanning = false;
             if (html5QrcodeScanner) {
-                html5QrcodeScanner.stop().then(() => {
-                    html5QrcodeScanner.clear();
-                    html5QrcodeScanner = null;
-                }).catch(err => console.error("Ошибка остановки:", err));
+                html5QrcodeScanner.stop().then(() => { html5QrcodeScanner.clear(); html5QrcodeScanner = null; });
             }
-            document.getElementById('startBtn').textContent = ' Включить камеру';
+            document.getElementById('startBtn').textContent = '📷 Включить камеру';
             document.getElementById('startBtn').classList.remove('btn-stop');
             document.getElementById('startBtn').classList.add('btn-start');
-            showStatus('⏹️ Камера выключена.', 'info');
-            setTimeout(() => { document.getElementById('statusBox').classList.remove('show'); }, 2000);
         }
 
         function onScanSuccess(decodedText, decodedResult) {
+            console.log("Код:", decodedText);
             if (scannedItems.find(item => item.code === decodedText)) return;
-            
             const expirationDate = parseDataMatrix(decodedText);
-            
             if (expirationDate) {
                 const status = getColorStatus(expirationDate);
                 const item = { code: decodedText, date: expirationDate, status: status, time: new Date() };
                 scannedItems.push(item);
                 showResult(item);
                 updateStats();
-                
                 if (navigator.vibrate) {
                     if (status.color === 'red') navigator.vibrate([200, 100, 200]);
                     else if (status.color === 'yellow') navigator.vibrate(100);
                     else navigator.vibrate(50);
                 }
             } else {
-                showStatus('⚠️ Код распознан, но срок годности не найден. Убедитесь, что это Честный Знак.', 'info');
-                setTimeout(() => { document.getElementById('statusBox').classList.remove('show'); }, 3000);
+                showStatus('📦 Код: ' + decodedText.substring(0, 80) + (decodedText.length > 80 ? '...' : ''), 'info');
+                setTimeout(() => { document.getElementById('statusBox').classList.remove('show'); }, 5000);
             }
         }
 
@@ -311,18 +189,14 @@
             const title = document.getElementById('resultTitle');
             const date = document.getElementById('resultDate');
             const days = document.getElementById('resultDays');
-            
             const dateStr = item.date.toLocaleDateString('ru-RU');
             const today = new Date();
             const diffDays = Math.ceil((item.date - today) / (1000 * 60 * 60 * 24));
-            
             indicator.className = 'color-indicator ' + item.status.class;
-            indicator.textContent = item.status.color === 'red' ? '' : 
-                                    item.status.color === 'yellow' ? '️' : '✅';
+            indicator.textContent = item.status.color === 'red' ? '' : (item.status.color === 'yellow' ? '⚠️' : '✅');
             title.textContent = item.status.label;
             date.textContent = 'Срок годности: ' + dateStr;
             days.textContent = 'Осталось дней: ' + diffDays;
-            
             card.classList.add('active');
             setTimeout(() => { card.classList.remove('active'); }, 3000);
         }
@@ -331,15 +205,12 @@
             const total = scannedItems.length;
             const expired = scannedItems.filter(i => i.status.color === 'red').length;
             const warning = scannedItems.filter(i => i.status.color === 'yellow').length;
-            
             document.getElementById('totalCount').textContent = total;
             document.getElementById('expiredCount').textContent = expired;
             document.getElementById('warningCount').textContent = warning;
         }
 
-        window.addEventListener('beforeunload', () => {
-            if (isScanning) stopScanning();
-        });
+        window.addEventListener('beforeunload', () => { if (isScanning) stopScanning(); });
     </script>
 </body>
 </html>
