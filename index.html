@@ -12,18 +12,23 @@
             background: #000;
             overflow: hidden;
             height: 100vh;
+            touch-action: none;
         }
         
         #reader { width: 100vw; height: 100vh; position: relative; }
-        #reader video { width: 100% !important; height: 100% !important; object-fit: cover; }
+        #reader video { 
+            width: 100% !important; 
+            height: 100% !important; 
+            object-fit: cover;
+        }
         
         .scan-overlay {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 150px;
-            height: 150px;
+            width: 120px;
+            height: 120px;
             pointer-events: none;
             z-index: 10;
         }
@@ -31,32 +36,36 @@
         .scan-frame {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            border: 3px solid rgba(255, 255, 255, 0.9);
-            border-radius: 12px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
+            border: 3px solid rgba(255, 255, 255, 0.95);
+            border-radius: 10px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
         }
         
         .scan-corner {
             position: absolute;
-            width: 25px;
-            height: 25px;
+            width: 20px;
+            height: 20px;
             border: 4px solid #4caf50;
+            transition: all 0.3s;
         }
         .scan-corner.top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 8px 0 0 0; }
         .scan-corner.top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; border-radius: 0 8px 0 0; }
         .scan-corner.bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; border-radius: 0 0 0 8px; }
         .scan-corner.bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; border-radius: 0 0 8px 0; }
         
+        .scan-corner.focusing { border-color: #ff9800; }
+        .scan-corner.focused { border-color: #4caf50; }
+        
         .scan-line {
             position: absolute;
             top: 50%; left: 10%; right: 10%;
             height: 2px;
             background: linear-gradient(90deg, transparent, #4caf50, transparent);
-            animation: scan 1.5s ease-in-out infinite;
+            animation: scan 1s ease-in-out infinite;
         }
         @keyframes scan {
-            0%, 100% { transform: translateY(-60px); opacity: 0; }
-            50% { transform: translateY(60px); opacity: 1; }
+            0%, 100% { transform: translateY(-50px); opacity: 0; }
+            50% { transform: translateY(50px); opacity: 1; }
         }
         
         .controls {
@@ -66,17 +75,17 @@
             transform: translateX(-50%);
             z-index: 100;
             display: flex;
-            gap: 8px;
+            gap: 6px;
             width: 95%;
             max-width: 500px;
         }
         
         .action-btn {
             flex: 1;
-            padding: 12px;
+            padding: 10px;
             border: none;
-            border-radius: 10px;
-            font-size: 13px;
+            border-radius: 8px;
+            font-size: 12px;
             font-weight: bold;
             cursor: pointer;
             color: white;
@@ -86,6 +95,8 @@
         .btn-stop { background: #f44336; }
         .btn-flash { background: #ff9800; }
         .btn-manual { background: #9c27b0; }
+        .btn-turbo { background: #2196f3; }
+        .btn-turbo.active { background: #ff5722; }
         
         .status-bar {
             position: fixed;
@@ -95,27 +106,27 @@
             z-index: 100;
             background: rgba(0, 0, 0, 0.85);
             color: white;
-            padding: 10px 18px;
-            border-radius: 20px;
-            font-size: 13px;
+            padding: 8px 16px;
+            border-radius: 15px;
+            font-size: 12px;
             max-width: 90%;
             text-align: center;
         }
         
         .result-notification {
             position: fixed;
-            top: 70px;
+            top: 60px;
             left: 50%;
             transform: translateX(-50%);
             background: white;
-            padding: 15px 20px;
-            border-radius: 15px;
+            padding: 12px 18px;
+            border-radius: 12px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.4);
             z-index: 200;
             display: none;
-            min-width: 250px;
+            min-width: 220px;
             max-width: 90%;
-            animation: slideDown 0.3s;
+            animation: slideDown 0.2s;
         }
         .result-notification.show { display: block; }
         @keyframes slideDown {
@@ -123,16 +134,16 @@
             to { transform: translateX(-50%) translateY(0); opacity: 1; }
         }
         
-        .result-header { display: flex; align-items: center; gap: 12px; }
+        .result-header { display: flex; align-items: center; gap: 10px; }
         
         .result-color {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 24px;
             flex-shrink: 0;
         }
         .result-color.green { background: #4caf50; }
@@ -140,53 +151,53 @@
         .result-color.red { background: #f44336; }
         
         .result-info { flex: 1; }
-        .result-title { font-size: 16px; font-weight: bold; margin-bottom: 3px; }
-        .result-date { color: #666; font-size: 13px; }
-        .result-days { color: #999; font-size: 12px; }
-        .result-source { color: #2196f3; font-size: 11px; font-weight: bold; }
+        .result-title { font-size: 14px; font-weight: bold; margin-bottom: 2px; }
+        .result-date { color: #666; font-size: 12px; }
+        .result-days { color: #999; font-size: 11px; }
+        .result-source { color: #2196f3; font-size: 10px; font-weight: bold; }
         
         .recent-list {
             position: fixed;
-            left: 15px;
+            left: 10px;
             top: 50%;
             transform: translateY(-50%);
             background: rgba(255, 255, 255, 0.95);
-            padding: 12px;
-            border-radius: 12px;
+            padding: 10px;
+            border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             z-index: 100;
-            font-size: 12px;
-            max-height: 300px;
+            font-size: 11px;
+            max-height: 250px;
             overflow-y: auto;
             display: none;
-            width: 120px;
+            width: 110px;
         }
         .recent-list.show { display: block; }
         .recent-item {
-            padding: 6px;
-            margin-bottom: 6px;
-            border-radius: 6px;
-            border-left: 4px solid;
+            padding: 5px;
+            margin-bottom: 5px;
+            border-radius: 5px;
+            border-left: 3px solid;
         }
         .recent-item.green { background: #e8f5e9; border-color: #4caf50; }
         .recent-item.yellow { background: #fff3e0; border-color: #ff9800; }
         .recent-item.red { background: #ffebee; border-color: #f44336; }
-        .recent-gtin { font-size: 10px; color: #999; word-break: break-all; }
+        .recent-gtin { font-size: 9px; color: #999; word-break: break-all; }
         
         .stats-panel {
             position: fixed;
-            top: 70px;
-            right: 15px;
+            top: 60px;
+            right: 10px;
             background: rgba(255, 255, 255, 0.95);
-            padding: 12px;
-            border-radius: 12px;
+            padding: 10px;
+            border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
             z-index: 100;
-            font-size: 13px;
+            font-size: 12px;
             display: none;
         }
         .stats-panel.show { display: block; }
-        .stat-item { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 6px; }
+        .stat-item { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
         .stat-item:last-child { margin-bottom: 0; }
         .stat-label { color: #666; }
         .stat-value { font-weight: bold; }
@@ -196,12 +207,12 @@
         .db-indicator {
             position: fixed;
             top: 15px;
-            left: 15px;
+            left: 10px;
             background: rgba(156, 39, 176, 0.95);
             color: white;
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 12px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
             font-weight: bold;
             z-index: 100;
             display: none;
@@ -211,38 +222,61 @@
         
         .hint {
             position: fixed;
-            bottom: 80px;
+            bottom: 70px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.75);
             color: white;
-            padding: 8px 16px;
-            border-radius: 15px;
-            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 11px;
             z-index: 100;
             text-align: center;
         }
         
         .zoom-controls {
             position: fixed;
-            right: 15px;
+            right: 10px;
             top: 50%;
             transform: translateY(-50%);
             z-index: 100;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
         .zoom-btn {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             border: none;
             background: rgba(255, 255, 255, 0.9);
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        
+        .focus-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: 15;
+        }
+        .focus-indicator.show { opacity: 1; }
+        .focus-indicator.focusing { border-color: #ff9800; animation: pulse 1s infinite; }
+        .focus-indicator.focused { border-color: #4caf50; }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
         }
         
         .manual-modal {
@@ -251,36 +285,36 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 20px;
-            border-radius: 15px;
+            padding: 18px;
+            border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             z-index: 300;
             display: none;
-            min-width: 280px;
+            min-width: 260px;
             max-width: 90%;
         }
         .manual-modal.show { display: block; }
-        .manual-modal h3 { margin-bottom: 12px; font-size: 16px; }
-        .manual-modal label { display: block; margin-bottom: 4px; font-size: 13px; color: #666; }
+        .manual-modal h3 { margin-bottom: 10px; font-size: 15px; }
+        .manual-modal label { display: block; margin-bottom: 3px; font-size: 12px; color: #666; }
         .manual-modal input {
             width: 100%;
-            padding: 10px;
+            padding: 8px;
             border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 15px;
-            margin-bottom: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
         }
-        .manual-modal .modal-buttons { display: flex; gap: 8px; }
-        .manual-modal .modal-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; color: white; }
+        .manual-modal .modal-buttons { display: flex; gap: 6px; }
+        .manual-modal .modal-buttons button { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; color: white; }
         .btn-confirm { background: #4caf50; }
         .btn-cancel { background: #9e9e9e; }
         .db-hint { 
             background: #e3f2fd; 
-            padding: 8px; 
-            border-radius: 6px; 
-            font-size: 12px; 
+            padding: 6px; 
+            border-radius: 5px; 
+            font-size: 11px; 
             color: #1976d2; 
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             display: none;
         }
         .db-hint.show { display: block; }
@@ -300,42 +334,42 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 20px;
-            border-radius: 15px;
+            padding: 18px;
+            border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             z-index: 300;
             display: none;
-            min-width: 300px;
+            min-width: 280px;
             max-width: 90%;
             max-height: 70vh;
             overflow-y: auto;
         }
         .db-view-modal.show { display: block; }
-        .db-view-modal h3 { margin-bottom: 12px; font-size: 16px; }
+        .db-view-modal h3 { margin-bottom: 10px; font-size: 15px; }
         .db-entry {
-            padding: 8px;
-            margin-bottom: 6px;
+            padding: 6px;
+            margin-bottom: 5px;
             background: #f5f5f5;
-            border-radius: 6px;
-            font-size: 13px;
+            border-radius: 5px;
+            font-size: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .db-entry-gtin { font-family: monospace; font-size: 12px; color: #333; }
+        .db-entry-gtin { font-family: monospace; font-size: 11px; color: #333; }
         .db-entry-date { color: #666; }
         .db-entry-delete {
             background: #f44336;
             color: white;
             border: none;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 11px;
+            border-radius: 3px;
+            padding: 3px 6px;
+            font-size: 10px;
             cursor: pointer;
         }
-        .db-empty { text-align: center; color: #999; padding: 20px; }
-        .db-view-buttons { display: flex; gap: 8px; margin-top: 12px; }
-        .db-view-buttons button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 13px; cursor: pointer; color: white; }
+        .db-empty { text-align: center; color: #999; padding: 15px; }
+        .db-view-buttons { display: flex; gap: 6px; margin-top: 10px; }
+        .db-view-buttons button { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; color: white; }
         .btn-clear-db { background: #f44336; }
         .btn-close-db { background: #9e9e9e; }
         
@@ -345,15 +379,30 @@
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.95);
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 14px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 13px;
             font-weight: bold;
             z-index: 100;
             display: none;
-            margin-top: 50px;
+            margin-top: 40px;
         }
         .timer.show { display: block; }
+        
+        .speed-indicator {
+            position: fixed;
+            bottom: 70px;
+            right: 10px;
+            background: rgba(33, 150, 243, 0.9);
+            color: white;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: bold;
+            z-index: 100;
+            display: none;
+        }
+        .speed-indicator.show { display: block; }
     </style>
 </head>
 <body>
@@ -361,21 +410,25 @@
     
     <div class="scan-overlay" id="scanOverlay" style="display: none;">
         <div class="scan-frame"></div>
-        <div class="scan-corner top-left"></div>
-        <div class="scan-corner top-right"></div>
-        <div class="scan-corner bottom-left"></div>
-        <div class="scan-corner bottom-right"></div>
+        <div class="scan-corner top-left" id="cornerTL"></div>
+        <div class="scan-corner top-right" id="cornerTR"></div>
+        <div class="scan-corner bottom-left" id="cornerBL"></div>
+        <div class="scan-corner bottom-right" id="cornerBR"></div>
         <div class="scan-line"></div>
     </div>
     
+    <div class="focus-indicator" id="focusIndicator"></div>
+    
     <div class="status-bar" id="statusBar">Нажмите "Включить"</div>
     
-    <div class="timer" id="timer">⏱️ 00:00</div>
+    <div class="timer" id="timer">️ 00:00</div>
     
-    <div class="db-indicator" id="dbIndicator" onclick="viewDatabase()"> База: 0</div>
+    <div class="db-indicator" id="dbIndicator" onclick="viewDatabase()">💾 База: 0</div>
+    
+    <div class="speed-indicator" id="speedIndicator">⚡ Турбо</div>
     
     <div class="hint" id="hint" style="display: none;">
-        📏 10-15 см | 💡 Включите вспышку
+        📏 10-15 см | 💡 Вспышка |  Касание = фокус
     </div>
     
     <div class="recent-list" id="recentList"></div>
@@ -416,13 +469,14 @@
         <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()">📷 Включить</button>
         <button class="action-btn btn-flash" id="flashBtn" onclick="toggleFlash()" style="display: none;">💡</button>
         <button class="action-btn btn-manual" id="manualBtn" onclick="openManual()" style="display: none;">✏️</button>
+        <button class="action-btn btn-turbo" id="turboBtn" onclick="toggleTurbo()" style="display: none;">⚡</button>
     </div>
     
     <div class="overlay-bg" id="overlayBg"></div>
     
     <div class="manual-modal" id="manualModal">
         <h3>✏️ Ввести срок годности</h3>
-        <div class="db-hint" id="dbHint">✅ Этот GTIN уже есть в базе!</div>
+        <div class="db-hint" id="dbHint">✅ Этот GTIN уже в базе!</div>
         <label>GTIN товара:</label>
         <input type="text" id="manualGtin" placeholder="0460060503352">
         <label>Срок годности (ДД.ММ.ГГГГ):</label>
@@ -450,11 +504,13 @@
         let isFlashOn = false;
         let lastScannedCode = null;
         let lastScanTime = 0;
+        let scanDelay = 300; // 0.3 секунды по умолчанию
+        let isTurboMode = false;
         let timerInterval;
         let startTime;
         let resultTimeout;
+        let focusTimeout;
         
-        // Загрузка базы из localStorage
         let gtinDatabase = {};
         try {
             const saved = localStorage.getItem('gtinDatabase');
@@ -463,7 +519,6 @@
             console.error('Ошибка загрузки базы:', e);
         }
         
-        // Нормализация GTIN: убираем ведущие нули и пробелы
         function normalizeGTIN(gtin) {
             if (!gtin) return '';
             return gtin.replace(/\s/g, '').replace(/^0+/, '') || '0';
@@ -482,19 +537,16 @@
         }
 
         function extractGTIN(rawData) {
-            // Ищем тег 01 (14 цифр) или просто 13-14 цифр подряд
             const match14 = rawData.match(/01(\d{14})/);
             if (match14) return match14[1];
             const match13 = rawData.match(/01(\d{13})/);
             if (match13) return match13[1];
-            // Резервный поиск: любая последовательность 13-14 цифр
             const matchAny = rawData.match(/(\d{13,14})/);
             if (matchAny) return matchAny[1];
             return null;
         }
 
         function parseDataMatrix(rawData) {
-            // 1. Тег 17 (стандартный срок годности GS1)
             const match17 = rawData.match(/17(\d{6})/);
             if (match17) {
                 const dateStr = match17[1];
@@ -504,7 +556,6 @@
                 return { date: new Date(year, month, day), source: 'тег 17' };
             }
             
-            // 2. Тег 91 (если содержит 6 цифр даты)
             const match91 = rawData.match(/91(\d{6})/);
             if (match91) {
                 const dateStr = match91[1];
@@ -516,11 +567,9 @@
                 }
             }
             
-            // 3. Поиск в локальной базе по GTIN (с нормализацией!)
             const rawGtin = extractGTIN(rawData);
             if (rawGtin) {
                 const normalizedGtin = normalizeGTIN(rawGtin);
-                // Ищем совпадение в базе (сравниваем нормализованные GTIN)
                 for (const dbGtin in gtinDatabase) {
                     if (normalizeGTIN(dbGtin) === normalizedGtin) {
                         const parts = gtinDatabase[dbGtin].split('.');
@@ -544,7 +593,7 @@
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
             if (diffDays <= 0) return { color: 'red', label: '🔴 Просрочен', emoji: '🔴', class: 'red', days: diffDays };
-            else if (diffDays <= 2) return { color: 'yellow', label: '⚠️ Истекает', emoji: '⚠️', class: 'yellow', days: diffDays };
+            else if (diffDays <= 2) return { color: 'yellow', label: '️ Истекает', emoji: '️', class: 'yellow', days: diffDays };
             else return { color: 'green', label: '🟢 Нормально', emoji: '✅', class: 'green', days: diffDays };
         }
 
@@ -578,7 +627,13 @@
                 document.getElementById('zoomControls').style.display = 'flex';
                 document.getElementById('flashBtn').style.display = 'block';
                 document.getElementById('manualBtn').style.display = 'block';
+                document.getElementById('turboBtn').style.display = 'block';
                 document.getElementById('timer').classList.add('show');
+                
+                if (isTurboMode) {
+                    document.getElementById('speedIndicator').classList.add('show');
+                    document.getElementById('turboBtn').classList.add('active');
+                }
                 
                 startTime = new Date();
                 timerInterval = setInterval(() => {
@@ -591,16 +646,24 @@
                 html5QrcodeScanner = new Html5Qrcode("reader");
                 
                 const config = { 
-                    fps: 30,
-                    qrbox: { width: 150, height: 150 },
+                    fps: 60,
+                    qrbox: { width: 120, height: 120 },
                     aspectRatio: 1.0,
                     disableFlip: false,
+                    formatsToSupport: [
+                        Html5QrcodeSupportedFormats.DATA_MATRIX,
+                        Html5QrcodeSupportedFormats.QR_CODE
+                    ],
                     videoConstraints: {
                         facingMode: 'environment',
-                        width: { ideal: 2560 },
-                        height: { ideal: 1440 },
+                        width: { ideal: 3840 },
+                        height: { ideal: 2160 },
+                        frameRate: { ideal: 60 },
                         focusMode: 'continuous',
-                        advanced: [{ zoom: currentZoom }]
+                        advanced: [
+                            { zoom: currentZoom },
+                            { focusMode: 'continuous' }
+                        ]
                     }
                 };
                 
@@ -614,12 +677,44 @@
                 const dbCount = Object.keys(gtinDatabase).length;
                 showStatus(`✅ Сканируйте (база: ${dbCount})`);
                 
+                // Касание для фокуса
+                document.getElementById('reader').addEventListener('click', handleFocus);
+                
             } catch (err) {
                 console.error('Ошибка:', err);
                 isScanning = false;
-                document.getElementById('startBtn').textContent = ' Включить';
-                showStatus(' ' + err.message);
+                document.getElementById('startBtn').textContent = '📷 Включить';
+                showStatus('❌ ' + err.message);
             }
+        }
+
+        function handleFocus(e) {
+            if (!isScanning) return;
+            
+            const focusIndicator = document.getElementById('focusIndicator');
+            const corners = document.querySelectorAll('.scan-corner');
+            
+            focusIndicator.classList.add('show', 'focusing');
+            corners.forEach(c => c.classList.add('focusing'));
+            
+            showStatus('🎯 Фокусировка...');
+            
+            clearTimeout(focusTimeout);
+            focusTimeout = setTimeout(() => {
+                focusIndicator.classList.remove('focusing');
+                focusIndicator.classList.add('focused');
+                corners.forEach(c => {
+                    c.classList.remove('focusing');
+                    c.classList.add('focused');
+                });
+                
+                setTimeout(() => {
+                    focusIndicator.classList.remove('show', 'focused');
+                    corners.forEach(c => c.classList.remove('focused'));
+                    const dbCount = Object.keys(gtinDatabase).length;
+                    showStatus(`✅ Сканируйте (база: ${dbCount})`);
+                }, 500);
+            }, 800);
         }
 
         function stopScanning() {
@@ -633,7 +728,9 @@
                 });
             }
             
-            document.getElementById('startBtn').textContent = '📷 Включить';
+            document.getElementById('reader').removeEventListener('click', handleFocus);
+            
+            document.getElementById('startBtn').textContent = ' Включить';
             document.getElementById('startBtn').classList.remove('btn-stop');
             document.getElementById('startBtn').classList.add('btn-start');
             document.getElementById('scanOverlay').style.display = 'none';
@@ -643,8 +740,33 @@
             document.getElementById('zoomControls').style.display = 'none';
             document.getElementById('flashBtn').style.display = 'none';
             document.getElementById('manualBtn').style.display = 'none';
+            document.getElementById('turboBtn').style.display = 'none';
             document.getElementById('timer').classList.remove('show');
+            document.getElementById('speedIndicator').classList.remove('show');
             showStatus('Остановлено');
+        }
+
+        function toggleTurbo() {
+            isTurboMode = !isTurboMode;
+            scanDelay = isTurboMode ? 0 : 300;
+            
+            const btn = document.getElementById('turboBtn');
+            const indicator = document.getElementById('speedIndicator');
+            
+            if (isTurboMode) {
+                btn.classList.add('active');
+                indicator.classList.add('show');
+                showStatus('⚡ Турбо режим активирован');
+            } else {
+                btn.classList.remove('active');
+                indicator.classList.remove('show');
+                showStatus('Обычный режим');
+            }
+            
+            setTimeout(() => {
+                const dbCount = Object.keys(gtinDatabase).length;
+                showStatus(`✅ Сканируйте (база: ${dbCount})`);
+            }, 1500);
         }
 
         function changeZoom(delta) {
@@ -676,7 +798,7 @@
 
         function onScanSuccess(decodedText, decodedResult) {
             const now = Date.now();
-            if (now - lastScanTime < 1000) return;
+            if (now - lastScanTime < scanDelay) return;
             lastScanTime = now;
             
             const gtin = extractGTIN(decodedText);
@@ -705,7 +827,7 @@
                 
                 playBeep(status.color);
             } else {
-                showStatus('📦 Дата не найдена → ✏️');
+                showStatus(' Дата не найдена → ✏️');
                 if (gtin) {
                     document.getElementById('manualGtin').value = gtin;
                 }
@@ -714,7 +836,7 @@
                         const dbCount = Object.keys(gtinDatabase).length;
                         showStatus(`✅ Сканируйте (база: ${dbCount})`);
                     }
-                }, 2000);
+                }, 1500);
             }
         }
 
@@ -739,7 +861,7 @@
             const sourceLabels = {
                 'тег 17': '📡 Тег 17',
                 'тег 91': '📡 Тег 91',
-                'база': ' Из базы',
+                'база': '💾 Из базы',
                 'ручной': '✏️ Ручной ввод'
             };
             source.textContent = sourceLabels[item.source] || item.source;
@@ -749,7 +871,7 @@
             clearTimeout(resultTimeout);
             resultTimeout = setTimeout(() => {
                 notif.classList.remove('show');
-            }, 1500);
+            }, 1200);
         }
 
         function updateStats() {
@@ -766,7 +888,7 @@
             const list = document.getElementById('recentList');
             const recent = scannedItems.slice(-5).reverse();
             
-            list.innerHTML = '<div style="font-weight: bold; margin-bottom: 8px;">Последние:</div>';
+            list.innerHTML = '<div style="font-weight: bold; margin-bottom: 6px;">Последние:</div>';
             
             recent.forEach(item => {
                 const div = document.createElement('div');
@@ -819,7 +941,6 @@
             document.getElementById('dbHint').classList.remove('show');
         }
 
-        // Проверяет, есть ли GTIN уже в базе
         function checkGtinInDb() {
             const gtin = document.getElementById('manualGtin').value.trim();
             const hint = document.getElementById('dbHint');
@@ -850,7 +971,6 @@
             }
         }
 
-        // Слушатель ввода GTIN для автопроверки
         document.getElementById('manualGtin').addEventListener('input', checkGtinInDb);
 
         function saveManual() {
@@ -873,11 +993,9 @@
             const year = parseInt(dateMatch[3]);
             const expDate = new Date(year, month, day);
             
-            // Сохраняем с нормализованным GTIN как ключ
             const normalizedGtin = normalizeGTIN(gtin);
             gtinDatabase[normalizedGtin] = dateStr;
             
-            // Сохраняем в localStorage
             try {
                 localStorage.setItem('gtinDatabase', JSON.stringify(gtinDatabase));
             } catch(e) {
@@ -940,12 +1058,12 @@
                 delete gtinDatabase[gtin];
                 localStorage.setItem('gtinDatabase', JSON.stringify(gtinDatabase));
                 updateDbIndicator();
-                viewDatabase(); // Обновить список
+                viewDatabase();
             }
         }
 
         function clearDatabase() {
-            if (confirm('Удалить ВСЕ товары из базы? Это действие нельзя отменить.')) {
+            if (confirm('Удалить ВСЕ товары из базы?')) {
                 gtinDatabase = {};
                 localStorage.setItem('gtinDatabase', JSON.stringify(gtinDatabase));
                 updateDbIndicator();
@@ -954,13 +1072,11 @@
             }
         }
 
-        // Закрытие модалок по клику на фон
         document.getElementById('overlayBg').addEventListener('click', () => {
             closeManual();
             closeDbView();
         });
 
-        // Инициализация индикатора при загрузке
         updateDbIndicator();
 
         window.addEventListener('beforeunload', () => { if (isScanning) stopScanning(); });
