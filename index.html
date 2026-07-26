@@ -16,19 +16,15 @@
         }
         
         #reader { width: 100vw; height: 100vh; position: relative; }
-        #reader video { 
-            width: 100% !important; 
-            height: 100% !important; 
-            object-fit: cover;
-        }
+        #reader video { width: 100% !important; height: 100% !important; object-fit: cover; }
         
         .scan-overlay {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 120px;
-            height: 120px;
+            width: 80px;
+            height: 80px;
             pointer-events: none;
             z-index: 10;
         }
@@ -36,114 +32,103 @@
         .scan-frame {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            border: 3px solid rgba(255, 255, 255, 0.95);
-            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            border-radius: 8px;
             box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.7);
         }
         
         .scan-corner {
             position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 4px solid #4caf50;
-            transition: all 0.3s;
+            width: 15px;
+            height: 15px;
+            border: 3px solid #4caf50;
         }
-        .scan-corner.top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 8px 0 0 0; }
-        .scan-corner.top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; border-radius: 0 8px 0 0; }
-        .scan-corner.bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; border-radius: 0 0 0 8px; }
-        .scan-corner.bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; border-radius: 0 0 8px 0; }
-        
-        .scan-corner.focusing { border-color: #ff9800; }
-        .scan-corner.focused { border-color: #4caf50; }
+        .scan-corner.top-left { top: -1px; left: -1px; border-right: none; border-bottom: none; border-radius: 6px 0 0 0; }
+        .scan-corner.top-right { top: -1px; right: -1px; border-left: none; border-bottom: none; border-radius: 0 6px 0 0; }
+        .scan-corner.bottom-left { bottom: -1px; left: -1px; border-right: none; border-top: none; border-radius: 0 0 0 6px; }
+        .scan-corner.bottom-right { bottom: -1px; right: -1px; border-left: none; border-top: none; border-radius: 0 0 6px 0; }
         
         .scan-line {
             position: absolute;
             top: 50%; left: 10%; right: 10%;
             height: 2px;
-            background: linear-gradient(90deg, transparent, #4caf50, transparent);
-            animation: scan 1s ease-in-out infinite;
+            background: #4caf50;
+            animation: scan 0.8s ease-in-out infinite;
         }
         @keyframes scan {
-            0%, 100% { transform: translateY(-50px); opacity: 0; }
-            50% { transform: translateY(50px); opacity: 1; }
+            0%, 100% { transform: translateY(-35px); }
+            50% { transform: translateY(35px); }
         }
         
         .controls {
             position: fixed;
-            bottom: 20px;
+            bottom: 15px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 100;
             display: flex;
-            gap: 6px;
+            gap: 5px;
             width: 95%;
             max-width: 500px;
         }
         
         .action-btn {
             flex: 1;
-            padding: 10px;
+            padding: 8px;
             border: none;
-            border-radius: 8px;
-            font-size: 12px;
+            border-radius: 6px;
+            font-size: 11px;
             font-weight: bold;
             cursor: pointer;
             color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         .btn-start { background: #4caf50; }
         .btn-stop { background: #f44336; }
         .btn-flash { background: #ff9800; }
         .btn-manual { background: #9c27b0; }
-        .btn-turbo { background: #2196f3; }
-        .btn-turbo.active { background: #ff5722; }
         
         .status-bar {
             position: fixed;
-            top: 15px;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 100;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.9);
             color: white;
-            padding: 8px 16px;
-            border-radius: 15px;
-            font-size: 12px;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 11px;
             max-width: 90%;
             text-align: center;
         }
         
         .result-notification {
             position: fixed;
-            top: 60px;
+            top: 50px;
             left: 50%;
             transform: translateX(-50%);
             background: white;
-            padding: 12px 18px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
             z-index: 200;
             display: none;
-            min-width: 220px;
+            min-width: 200px;
             max-width: 90%;
-            animation: slideDown 0.2s;
         }
         .result-notification.show { display: block; }
-        @keyframes slideDown {
-            from { transform: translateX(-50%) translateY(-20px); opacity: 0; }
-            to { transform: translateX(-50%) translateY(0); opacity: 1; }
-        }
         
-        .result-header { display: flex; align-items: center; gap: 10px; }
+        .result-header { display: flex; align-items: center; gap: 8px; }
         
         .result-color {
-            width: 45px;
-            height: 45px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 20px;
             flex-shrink: 0;
         }
         .result-color.green { background: #4caf50; }
@@ -151,53 +136,52 @@
         .result-color.red { background: #f44336; }
         
         .result-info { flex: 1; }
-        .result-title { font-size: 14px; font-weight: bold; margin-bottom: 2px; }
-        .result-date { color: #666; font-size: 12px; }
-        .result-days { color: #999; font-size: 11px; }
-        .result-source { color: #2196f3; font-size: 10px; font-weight: bold; }
+        .result-title { font-size: 13px; font-weight: bold; }
+        .result-date { color: #666; font-size: 11px; }
+        .result-days { color: #999; font-size: 10px; }
         
         .recent-list {
             position: fixed;
-            left: 10px;
+            left: 8px;
             top: 50%;
             transform: translateY(-50%);
             background: rgba(255, 255, 255, 0.95);
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             z-index: 100;
-            font-size: 11px;
-            max-height: 250px;
+            font-size: 10px;
+            max-height: 200px;
             overflow-y: auto;
             display: none;
-            width: 110px;
+            width: 100px;
         }
         .recent-list.show { display: block; }
         .recent-item {
-            padding: 5px;
-            margin-bottom: 5px;
-            border-radius: 5px;
-            border-left: 3px solid;
+            padding: 4px;
+            margin-bottom: 4px;
+            border-radius: 4px;
+            border-left: 2px solid;
         }
         .recent-item.green { background: #e8f5e9; border-color: #4caf50; }
         .recent-item.yellow { background: #fff3e0; border-color: #ff9800; }
         .recent-item.red { background: #ffebee; border-color: #f44336; }
-        .recent-gtin { font-size: 9px; color: #999; word-break: break-all; }
+        .recent-gtin { font-size: 8px; color: #999; word-break: break-all; }
         
         .stats-panel {
             position: fixed;
-            top: 60px;
-            right: 10px;
+            top: 50px;
+            right: 8px;
             background: rgba(255, 255, 255, 0.95);
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            padding: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             z-index: 100;
-            font-size: 12px;
+            font-size: 11px;
             display: none;
         }
         .stats-panel.show { display: block; }
-        .stat-item { display: flex; justify-content: space-between; gap: 10px; margin-bottom: 5px; }
+        .stat-item { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
         .stat-item:last-child { margin-bottom: 0; }
         .stat-label { color: #666; }
         .stat-value { font-weight: bold; }
@@ -206,13 +190,13 @@
         
         .db-indicator {
             position: fixed;
-            top: 15px;
-            left: 10px;
+            top: 10px;
+            left: 8px;
             background: rgba(156, 39, 176, 0.95);
             color: white;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 11px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 10px;
             font-weight: bold;
             z-index: 100;
             display: none;
@@ -222,61 +206,37 @@
         
         .hint {
             position: fixed;
-            bottom: 70px;
+            bottom: 60px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.75);
+            background: rgba(0, 0, 0, 0.8);
             color: white;
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 11px;
+            padding: 5px 10px;
+            border-radius: 10px;
+            font-size: 10px;
             z-index: 100;
             text-align: center;
         }
         
         .zoom-controls {
             position: fixed;
-            right: 10px;
+            right: 8px;
             top: 50%;
             transform: translateY(-50%);
             z-index: 100;
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
         }
         .zoom-btn {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             border: none;
             background: rgba(255, 255, 255, 0.9);
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-        }
-        
-        .focus-indicator {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 50%;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: 15;
-        }
-        .focus-indicator.show { opacity: 1; }
-        .focus-indicator.focusing { border-color: #ff9800; animation: pulse 1s infinite; }
-        .focus-indicator.focused { border-color: #4caf50; }
-        
-        @keyframes pulse {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); }
-            50% { transform: translate(-50%, -50%) scale(1.2); }
         }
         
         .manual-modal {
@@ -285,36 +245,36 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 18px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
             z-index: 300;
             display: none;
-            min-width: 260px;
+            min-width: 240px;
             max-width: 90%;
         }
         .manual-modal.show { display: block; }
-        .manual-modal h3 { margin-bottom: 10px; font-size: 15px; }
-        .manual-modal label { display: block; margin-bottom: 3px; font-size: 12px; color: #666; }
+        .manual-modal h3 { margin-bottom: 8px; font-size: 14px; }
+        .manual-modal label { display: block; margin-bottom: 3px; font-size: 11px; color: #666; }
         .manual-modal input {
             width: 100%;
-            padding: 8px;
+            padding: 6px;
             border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-            margin-bottom: 10px;
+            border-radius: 5px;
+            font-size: 13px;
+            margin-bottom: 8px;
         }
-        .manual-modal .modal-buttons { display: flex; gap: 6px; }
-        .manual-modal .modal-buttons button { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; color: white; }
+        .manual-modal .modal-buttons { display: flex; gap: 5px; }
+        .manual-modal .modal-buttons button { flex: 1; padding: 6px; border: none; border-radius: 5px; font-size: 11px; cursor: pointer; color: white; }
         .btn-confirm { background: #4caf50; }
         .btn-cancel { background: #9e9e9e; }
         .db-hint { 
             background: #e3f2fd; 
-            padding: 6px; 
-            border-radius: 5px; 
-            font-size: 11px; 
+            padding: 5px; 
+            border-radius: 4px; 
+            font-size: 10px; 
             color: #1976d2; 
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             display: none;
         }
         .db-hint.show { display: block; }
@@ -334,75 +294,60 @@
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 18px;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.5);
             z-index: 300;
             display: none;
-            min-width: 280px;
+            min-width: 260px;
             max-width: 90%;
             max-height: 70vh;
             overflow-y: auto;
         }
         .db-view-modal.show { display: block; }
-        .db-view-modal h3 { margin-bottom: 10px; font-size: 15px; }
+        .db-view-modal h3 { margin-bottom: 8px; font-size: 14px; }
         .db-entry {
-            padding: 6px;
-            margin-bottom: 5px;
+            padding: 5px;
+            margin-bottom: 4px;
             background: #f5f5f5;
-            border-radius: 5px;
-            font-size: 12px;
+            border-radius: 4px;
+            font-size: 11px;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
-        .db-entry-gtin { font-family: monospace; font-size: 11px; color: #333; }
+        .db-entry-gtin { font-family: monospace; font-size: 10px; color: #333; }
         .db-entry-date { color: #666; }
         .db-entry-delete {
             background: #f44336;
             color: white;
             border: none;
             border-radius: 3px;
-            padding: 3px 6px;
-            font-size: 10px;
+            padding: 2px 5px;
+            font-size: 9px;
             cursor: pointer;
         }
-        .db-empty { text-align: center; color: #999; padding: 15px; }
-        .db-view-buttons { display: flex; gap: 6px; margin-top: 10px; }
-        .db-view-buttons button { flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 12px; cursor: pointer; color: white; }
+        .db-empty { text-align: center; color: #999; padding: 10px; }
+        .db-view-buttons { display: flex; gap: 5px; margin-top: 8px; }
+        .db-view-buttons button { flex: 1; padding: 6px; border: none; border-radius: 5px; font-size: 11px; cursor: pointer; color: white; }
         .btn-clear-db { background: #f44336; }
         .btn-close-db { background: #9e9e9e; }
         
         .timer {
             position: fixed;
-            top: 15px;
+            top: 10px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.95);
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 13px;
+            padding: 5px 8px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: bold;
             z-index: 100;
             display: none;
-            margin-top: 40px;
+            margin-top: 35px;
         }
         .timer.show { display: block; }
-        
-        .speed-indicator {
-            position: fixed;
-            bottom: 70px;
-            right: 10px;
-            background: rgba(33, 150, 243, 0.9);
-            color: white;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: bold;
-            z-index: 100;
-            display: none;
-        }
-        .speed-indicator.show { display: block; }
     </style>
 </head>
 <body>
@@ -410,25 +355,21 @@
     
     <div class="scan-overlay" id="scanOverlay" style="display: none;">
         <div class="scan-frame"></div>
-        <div class="scan-corner top-left" id="cornerTL"></div>
-        <div class="scan-corner top-right" id="cornerTR"></div>
-        <div class="scan-corner bottom-left" id="cornerBL"></div>
-        <div class="scan-corner bottom-right" id="cornerBR"></div>
+        <div class="scan-corner top-left"></div>
+        <div class="scan-corner top-right"></div>
+        <div class="scan-corner bottom-left"></div>
+        <div class="scan-corner bottom-right"></div>
         <div class="scan-line"></div>
     </div>
     
-    <div class="focus-indicator" id="focusIndicator"></div>
-    
     <div class="status-bar" id="statusBar">Нажмите "Включить"</div>
     
-    <div class="timer" id="timer">️ 00:00</div>
+    <div class="timer" id="timer">⏱️ 00:00</div>
     
     <div class="db-indicator" id="dbIndicator" onclick="viewDatabase()">💾 База: 0</div>
     
-    <div class="speed-indicator" id="speedIndicator">⚡ Турбо</div>
-    
     <div class="hint" id="hint" style="display: none;">
-        📏 10-15 см | 💡 Вспышка |  Касание = фокус
+        📏 10-15 см | 💡 Вспышка
     </div>
     
     <div class="recent-list" id="recentList"></div>
@@ -460,7 +401,6 @@
                 <div class="result-title" id="resultTitle"></div>
                 <div class="result-date" id="resultDate"></div>
                 <div class="result-days" id="resultDays"></div>
-                <div class="result-source" id="resultSource"></div>
             </div>
         </div>
     </div>
@@ -469,7 +409,6 @@
         <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()">📷 Включить</button>
         <button class="action-btn btn-flash" id="flashBtn" onclick="toggleFlash()" style="display: none;">💡</button>
         <button class="action-btn btn-manual" id="manualBtn" onclick="openManual()" style="display: none;">✏️</button>
-        <button class="action-btn btn-turbo" id="turboBtn" onclick="toggleTurbo()" style="display: none;">⚡</button>
     </div>
     
     <div class="overlay-bg" id="overlayBg"></div>
@@ -504,20 +443,16 @@
         let isFlashOn = false;
         let lastScannedCode = null;
         let lastScanTime = 0;
-        let scanDelay = 300; // 0.3 секунды по умолчанию
-        let isTurboMode = false;
+        let scanDelay = 0; // Мгновенное сканирование
         let timerInterval;
         let startTime;
         let resultTimeout;
-        let focusTimeout;
         
         let gtinDatabase = {};
         try {
             const saved = localStorage.getItem('gtinDatabase');
             if (saved) gtinDatabase = JSON.parse(saved);
-        } catch(e) {
-            console.error('Ошибка загрузки базы:', e);
-        }
+        } catch(e) {}
         
         function normalizeGTIN(gtin) {
             if (!gtin) return '';
@@ -592,9 +527,9 @@
             const diffTime = expirationDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            if (diffDays <= 0) return { color: 'red', label: '🔴 Просрочен', emoji: '🔴', class: 'red', days: diffDays };
-            else if (diffDays <= 2) return { color: 'yellow', label: '️ Истекает', emoji: '️', class: 'yellow', days: diffDays };
-            else return { color: 'green', label: '🟢 Нормально', emoji: '✅', class: 'green', days: diffDays };
+            if (diffDays <= 0) return { color: 'red', label: ' Просрочен', emoji: '🔴', class: 'red', days: diffDays };
+            else if (diffDays <= 2) return { color: 'yellow', label: '⚠️ Истекает', emoji: '⚠️', class: 'yellow', days: diffDays };
+            else return { color: 'green', label: ' Нормально', emoji: '✅', class: 'green', days: diffDays };
         }
 
         async function toggleScan() {
@@ -604,11 +539,11 @@
 
         async function startScanning() {
             if (typeof Html5Qrcode === 'undefined') {
-                showStatus('⚠️ Библиотека не загружена');
+                showStatus('️ Библиотека не загружена');
                 return;
             }
             
-            showStatus('🚀 Запуск...');
+            showStatus(' Запуск...');
             
             try {
                 isScanning = true;
@@ -627,32 +562,25 @@
                 document.getElementById('zoomControls').style.display = 'flex';
                 document.getElementById('flashBtn').style.display = 'block';
                 document.getElementById('manualBtn').style.display = 'block';
-                document.getElementById('turboBtn').style.display = 'block';
                 document.getElementById('timer').classList.add('show');
-                
-                if (isTurboMode) {
-                    document.getElementById('speedIndicator').classList.add('show');
-                    document.getElementById('turboBtn').classList.add('active');
-                }
                 
                 startTime = new Date();
                 timerInterval = setInterval(() => {
                     const diff = Math.floor((new Date() - startTime) / 1000);
                     const minutes = Math.floor(diff / 60).toString().padStart(2, '0');
                     const seconds = (diff % 60).toString().padStart(2, '0');
-                    document.getElementById('timer').textContent = `⏱️ ${minutes}:${seconds}`;
+                    document.getElementById('timer').textContent = `️ ${minutes}:${seconds}`;
                 }, 1000);
                 
                 html5QrcodeScanner = new Html5Qrcode("reader");
                 
                 const config = { 
                     fps: 60,
-                    qrbox: { width: 120, height: 120 },
+                    qrbox: { width: 80, height: 80 },
                     aspectRatio: 1.0,
                     disableFlip: false,
                     formatsToSupport: [
-                        Html5QrcodeSupportedFormats.DATA_MATRIX,
-                        Html5QrcodeSupportedFormats.QR_CODE
+                        Html5QrcodeSupportedFormats.DATA_MATRIX
                     ],
                     videoConstraints: {
                         facingMode: 'environment',
@@ -677,44 +605,12 @@
                 const dbCount = Object.keys(gtinDatabase).length;
                 showStatus(`✅ Сканируйте (база: ${dbCount})`);
                 
-                // Касание для фокуса
-                document.getElementById('reader').addEventListener('click', handleFocus);
-                
             } catch (err) {
                 console.error('Ошибка:', err);
                 isScanning = false;
                 document.getElementById('startBtn').textContent = '📷 Включить';
                 showStatus('❌ ' + err.message);
             }
-        }
-
-        function handleFocus(e) {
-            if (!isScanning) return;
-            
-            const focusIndicator = document.getElementById('focusIndicator');
-            const corners = document.querySelectorAll('.scan-corner');
-            
-            focusIndicator.classList.add('show', 'focusing');
-            corners.forEach(c => c.classList.add('focusing'));
-            
-            showStatus('🎯 Фокусировка...');
-            
-            clearTimeout(focusTimeout);
-            focusTimeout = setTimeout(() => {
-                focusIndicator.classList.remove('focusing');
-                focusIndicator.classList.add('focused');
-                corners.forEach(c => {
-                    c.classList.remove('focusing');
-                    c.classList.add('focused');
-                });
-                
-                setTimeout(() => {
-                    focusIndicator.classList.remove('show', 'focused');
-                    corners.forEach(c => c.classList.remove('focused'));
-                    const dbCount = Object.keys(gtinDatabase).length;
-                    showStatus(`✅ Сканируйте (база: ${dbCount})`);
-                }, 500);
-            }, 800);
         }
 
         function stopScanning() {
@@ -728,8 +624,6 @@
                 });
             }
             
-            document.getElementById('reader').removeEventListener('click', handleFocus);
-            
             document.getElementById('startBtn').textContent = ' Включить';
             document.getElementById('startBtn').classList.remove('btn-stop');
             document.getElementById('startBtn').classList.add('btn-start');
@@ -740,33 +634,8 @@
             document.getElementById('zoomControls').style.display = 'none';
             document.getElementById('flashBtn').style.display = 'none';
             document.getElementById('manualBtn').style.display = 'none';
-            document.getElementById('turboBtn').style.display = 'none';
             document.getElementById('timer').classList.remove('show');
-            document.getElementById('speedIndicator').classList.remove('show');
             showStatus('Остановлено');
-        }
-
-        function toggleTurbo() {
-            isTurboMode = !isTurboMode;
-            scanDelay = isTurboMode ? 0 : 300;
-            
-            const btn = document.getElementById('turboBtn');
-            const indicator = document.getElementById('speedIndicator');
-            
-            if (isTurboMode) {
-                btn.classList.add('active');
-                indicator.classList.add('show');
-                showStatus('⚡ Турбо режим активирован');
-            } else {
-                btn.classList.remove('active');
-                indicator.classList.remove('show');
-                showStatus('Обычный режим');
-            }
-            
-            setTimeout(() => {
-                const dbCount = Object.keys(gtinDatabase).length;
-                showStatus(`✅ Сканируйте (база: ${dbCount})`);
-            }, 1500);
         }
 
         function changeZoom(delta) {
@@ -827,7 +696,7 @@
                 
                 playBeep(status.color);
             } else {
-                showStatus(' Дата не найдена → ✏️');
+                showStatus('📦 Дата не найдена → ✏️');
                 if (gtin) {
                     document.getElementById('manualGtin').value = gtin;
                 }
@@ -836,7 +705,7 @@
                         const dbCount = Object.keys(gtinDatabase).length;
                         showStatus(`✅ Сканируйте (база: ${dbCount})`);
                     }
-                }, 1500);
+                }, 1000);
             }
         }
 
@@ -848,7 +717,6 @@
             const title = document.getElementById('resultTitle');
             const date = document.getElementById('resultDate');
             const days = document.getElementById('resultDays');
-            const source = document.getElementById('resultSource');
             
             const dateStr = item.date.toLocaleDateString('ru-RU');
             
@@ -858,20 +726,12 @@
             date.textContent = dateStr;
             days.textContent = item.status.days + ' дн.';
             
-            const sourceLabels = {
-                'тег 17': '📡 Тег 17',
-                'тег 91': '📡 Тег 91',
-                'база': '💾 Из базы',
-                'ручной': '✏️ Ручной ввод'
-            };
-            source.textContent = sourceLabels[item.source] || item.source;
-            
             notif.classList.add('show');
             
             clearTimeout(resultTimeout);
             resultTimeout = setTimeout(() => {
                 notif.classList.remove('show');
-            }, 1200);
+            }, 1000);
         }
 
         function updateStats() {
@@ -888,7 +748,7 @@
             const list = document.getElementById('recentList');
             const recent = scannedItems.slice(-5).reverse();
             
-            list.innerHTML = '<div style="font-weight: bold; margin-bottom: 6px;">Последние:</div>';
+            list.innerHTML = '<div style="font-weight: bold; margin-bottom: 4px;">Последние:</div>';
             
             recent.forEach(item => {
                 const div = document.createElement('div');
@@ -999,8 +859,7 @@
             try {
                 localStorage.setItem('gtinDatabase', JSON.stringify(gtinDatabase));
             } catch(e) {
-                console.error('Ошибка сохранения:', e);
-                alert('Ошибка сохранения в базу!');
+                alert('Ошибка сохранения!');
                 return;
             }
             
