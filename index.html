@@ -14,17 +14,8 @@
             height: 100vh;
         }
         
-        #reader {
-            width: 100vw;
-            height: 100vh;
-            position: relative;
-        }
-        
-        #reader video {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover;
-        }
+        #reader { width: 100vw; height: 100vh; position: relative; }
+        #reader video { width: 100% !important; height: 100% !important; object-fit: cover; }
         
         .scan-overlay {
             position: absolute;
@@ -39,10 +30,7 @@
         
         .scan-frame {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             border: 3px solid rgba(255, 255, 255, 0.8);
             border-radius: 15px;
             box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
@@ -54,7 +42,6 @@
             height: 30px;
             border: 4px solid #4caf50;
         }
-        
         .scan-corner.top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 10px 0 0 0; }
         .scan-corner.top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; border-radius: 0 10px 0 0; }
         .scan-corner.bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; border-radius: 0 0 0 10px; }
@@ -62,14 +49,11 @@
         
         .scan-line {
             position: absolute;
-            top: 50%;
-            left: 10%;
-            right: 10%;
+            top: 50%; left: 10%; right: 10%;
             height: 2px;
             background: linear-gradient(90deg, transparent, #4caf50, transparent);
             animation: scan 2s ease-in-out infinite;
         }
-        
         @keyframes scan {
             0%, 100% { transform: translateY(-80px); opacity: 0; }
             50% { transform: translateY(80px); opacity: 1; }
@@ -84,7 +68,7 @@
             display: flex;
             gap: 10px;
             width: 90%;
-            max-width: 400px;
+            max-width: 500px;
         }
         
         .action-btn {
@@ -98,11 +82,10 @@
             color: white;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-        
         .btn-start { background: #4caf50; }
         .btn-stop { background: #f44336; }
-        .btn-zoom { background: #2196f3; }
         .btn-flash { background: #ff9800; }
+        .btn-manual { background: #9c27b0; }
         
         .status-bar {
             position: fixed;
@@ -132,10 +115,9 @@
             display: none;
             min-width: 280px;
             text-align: center;
+            max-width: 90%;
         }
-        
         .result-popup.show { display: block; animation: popIn 0.3s; }
-        
         @keyframes popIn {
             from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
             to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
@@ -151,7 +133,6 @@
             justify-content: center;
             font-size: 50px;
         }
-        
         .result-color.green { background: #4caf50; }
         .result-color.yellow { background: #ff9800; }
         .result-color.red { background: #f44336; }
@@ -159,6 +140,7 @@
         .result-title { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
         .result-date { color: #666; font-size: 16px; margin-bottom: 5px; }
         .result-days { color: #999; font-size: 14px; }
+        .result-gtin { color: #999; font-size: 12px; margin-top: 10px; word-break: break-all; }
         
         .close-btn {
             margin-top: 20px;
@@ -183,16 +165,8 @@
             font-size: 14px;
             display: none;
         }
-        
         .stats-panel.show { display: block; }
-        
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            margin-bottom: 8px;
-        }
-        
+        .stat-item { display: flex; justify-content: space-between; gap: 15px; margin-bottom: 8px; }
         .stat-item:last-child { margin-bottom: 0; }
         .stat-label { color: #666; }
         .stat-value { font-weight: bold; }
@@ -223,7 +197,6 @@
             flex-direction: column;
             gap: 10px;
         }
-        
         .zoom-btn {
             width: 50px;
             height: 50px;
@@ -235,6 +208,46 @@
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
+        
+        /* Модальное окно ручного ввода */
+        .manual-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            z-index: 300;
+            display: none;
+            min-width: 300px;
+            max-width: 90%;
+        }
+        .manual-modal.show { display: block; }
+        .manual-modal h3 { margin-bottom: 15px; font-size: 18px; }
+        .manual-modal label { display: block; margin-bottom: 5px; font-size: 14px; color: #666; }
+        .manual-modal input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        .manual-modal .modal-buttons { display: flex; gap: 10px; }
+        .manual-modal .modal-buttons button { flex: 1; padding: 12px; border: none; border-radius: 8px; font-size: 14px; cursor: pointer; color: white; }
+        .btn-confirm { background: #4caf50; }
+        .btn-cancel { background: #9e9e9e; }
+        
+        .overlay-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 250;
+            display: none;
+        }
+        .overlay-bg.show { display: block; }
     </style>
 </head>
 <body>
@@ -281,12 +294,28 @@
         <div class="result-title" id="resultTitle"></div>
         <div class="result-date" id="resultDate"></div>
         <div class="result-days" id="resultDays"></div>
+        <div class="result-gtin" id="resultGtin"></div>
         <button class="close-btn" onclick="closeResult()">Продолжить</button>
     </div>
     
     <div class="controls">
         <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()">📷 Включить</button>
         <button class="action-btn btn-flash" id="flashBtn" onclick="toggleFlash()" style="display: none;">💡 Вспышка</button>
+        <button class="action-btn btn-manual" id="manualBtn" onclick="openManual()" style="display: none;">✏️ Вручную</button>
+    </div>
+    
+    <!-- Модальное окно ручного ввода -->
+    <div class="overlay-bg" id="overlayBg"></div>
+    <div class="manual-modal" id="manualModal">
+        <h3>✏️ Ввести срок годности вручную</h3>
+        <label>GTIN товара:</label>
+        <input type="text" id="manualGtin" placeholder="Например: 0460060503352">
+        <label>Срок годности (ДД.ММ.ГГГГ):</label>
+        <input type="text" id="manualDate" placeholder="Например: 25.07.2026">
+        <div class="modal-buttons">
+            <button class="btn-cancel" onclick="closeManual()">Отмена</button>
+            <button class="btn-confirm" onclick="saveManual()">Сохранить</button>
+        </div>
     </div>
 
     <script>
@@ -295,20 +324,60 @@
         let scannedItems = [];
         let currentZoom = 1;
         let isFlashOn = false;
+        let lastScannedCode = null;
+        
+        // Локальная база GTIN → срок годности (сохраняется в браузере)
+        let gtinDatabase = JSON.parse(localStorage.getItem('gtinDatabase') || '{}');
 
         function showStatus(message) {
             document.getElementById('statusBar').textContent = message;
         }
 
+        // Извлечение GTIN из кода (тег 01, 14 цифр)
+        function extractGTIN(rawData) {
+            const match = rawData.match(/01(\d{14})/);
+            if (match) return match[1];
+            const match13 = rawData.match(/01(\d{13})/);
+            if (match13) return match13[1];
+            return null;
+        }
+
+        // Поиск даты в коде (несколько форматов)
         function parseDataMatrix(rawData) {
-            const match = rawData.match(/91(\d{6})/);
-            if (match) {
-                const dateStr = match[1];
+            // 1. Тег 17 (стандартный срок годности GS1)
+            const match17 = rawData.match(/17(\d{6})/);
+            if (match17) {
+                const dateStr = match17[1];
                 const year = parseInt(dateStr.substr(0, 2)) + 2000;
                 const month = parseInt(dateStr.substr(2, 2)) - 1;
                 const day = parseInt(dateStr.substr(4, 2));
-                return new Date(year, month, day);
+                return { date: new Date(year, month, day), source: 'тег 17' };
             }
+            
+            // 2. Тег 91 (если содержит 6 цифр)
+            const match91 = rawData.match(/91(\d{6})/);
+            if (match91) {
+                const dateStr = match91[1];
+                const year = parseInt(dateStr.substr(0, 2)) + 2000;
+                const month = parseInt(dateStr.substr(2, 2)) - 1;
+                const day = parseInt(dateStr.substr(4, 2));
+                if (year >= 2020 && year <= 2030 && month >= 0 && month <= 11 && day >= 1 && day <= 31) {
+                    return { date: new Date(year, month, day), source: 'тег 91' };
+                }
+            }
+            
+            // 3. Поиск в локальной базе по GTIN
+            const gtin = extractGTIN(rawData);
+            if (gtin && gtinDatabase[gtin]) {
+                const parts = gtinDatabase[gtin].split('.');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0]);
+                    const month = parseInt(parts[1]) - 1;
+                    const year = parseInt(parts[2]);
+                    return { date: new Date(year, month, day), source: 'база данных' };
+                }
+            }
+            
             return null;
         }
 
@@ -318,17 +387,14 @@
             const diffTime = expirationDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            if (diffDays <= 0) return { color: 'red', label: '🔴 Просрочен', emoji: '', class: 'red' };
-            else if (diffDays <= 2) return { color: 'yellow', label: '️ Истекает', emoji: '⚠️', class: 'yellow' };
-            else return { color: 'green', label: '🟢 Нормально', emoji: '✅', class: 'green' };
+            if (diffDays <= 0) return { color: 'red', label: '🔴 Просрочен', emoji: '🔴', class: 'red', days: diffDays };
+            else if (diffDays <= 2) return { color: 'yellow', label: '⚠️ Истекает', emoji: '⚠️', class: 'yellow', days: diffDays };
+            else return { color: 'green', label: '🟢 Нормально', emoji: '✅', class: 'green', days: diffDays };
         }
 
         async function toggleScan() {
-            if (isScanning) {
-                stopScanning();
-            } else {
-                await startScanning();
-            }
+            if (isScanning) stopScanning();
+            else await startScanning();
         }
 
         async function startScanning() {
@@ -341,7 +407,7 @@
             
             try {
                 isScanning = true;
-                document.getElementById('startBtn').textContent = '️ Выключить';
+                document.getElementById('startBtn').textContent = '⏹️ Выключить';
                 document.getElementById('startBtn').classList.remove('btn-start');
                 document.getElementById('startBtn').classList.add('btn-stop');
                 document.getElementById('scanOverlay').style.display = 'block';
@@ -349,6 +415,7 @@
                 document.getElementById('statsPanel').classList.add('show');
                 document.getElementById('zoomControls').style.display = 'flex';
                 document.getElementById('flashBtn').style.display = 'block';
+                document.getElementById('manualBtn').style.display = 'block';
                 
                 html5QrcodeScanner = new Html5Qrcode("reader");
                 
@@ -361,8 +428,7 @@
                         facingMode: 'environment',
                         width: { ideal: 2560 },
                         height: { ideal: 1440 },
-                        focusMode: 'macro',
-                        advanced: [{ zoom: currentZoom }]
+                        focusMode: 'macro'
                     }
                 };
                 
@@ -391,7 +457,7 @@
                     html5QrcodeScanner = null;
                 });
             }
-            document.getElementById('startBtn').textContent = '📷 Включить';
+            document.getElementById('startBtn').textContent = ' Включить';
             document.getElementById('startBtn').classList.remove('btn-stop');
             document.getElementById('startBtn').classList.add('btn-start');
             document.getElementById('scanOverlay').style.display = 'none';
@@ -399,6 +465,7 @@
             document.getElementById('statsPanel').classList.remove('show');
             document.getElementById('zoomControls').style.display = 'none';
             document.getElementById('flashBtn').style.display = 'none';
+            document.getElementById('manualBtn').style.display = 'none';
             showStatus('Камера выключена');
         }
 
@@ -430,13 +497,23 @@
         }
 
         function onScanSuccess(decodedText, decodedResult) {
-            if (scannedItems.find(item => item.code === decodedText)) return;
+            // Защита от повторного сканирования того же кода подряд
+            if (lastScannedCode === decodedText) return;
+            lastScannedCode = decodedText;
             
-            const expirationDate = parseDataMatrix(decodedText);
+            const gtin = extractGTIN(decodedText);
+            const parsed = parseDataMatrix(decodedText);
             
-            if (expirationDate) {
-                const status = getColorStatus(expirationDate);
-                const item = { code: decodedText, date: expirationDate, status: status, time: new Date() };
+            if (parsed) {
+                const status = getColorStatus(parsed.date);
+                const item = { 
+                    code: decodedText, 
+                    gtin: gtin,
+                    date: parsed.date, 
+                    status: status, 
+                    source: parsed.source,
+                    time: new Date() 
+                };
                 scannedItems.push(item);
                 showResult(item);
                 updateStats();
@@ -447,8 +524,17 @@
                     else navigator.vibrate(50);
                 }
             } else {
-                showStatus('📦 Код: ' + decodedText.substring(0, 50));
-                setTimeout(() => { showStatus('✅ Камера активна'); }, 3000);
+                // Дата не найдена — предлагаем ввести вручную
+                showStatus('📦 Дата не найдена. Нажмите "Вручную"');
+                
+                // Автозаполнение GTIN в модальном окне
+                if (gtin) {
+                    document.getElementById('manualGtin').value = gtin;
+                }
+                
+                setTimeout(() => { 
+                    if (isScanning) showStatus('✅ Камера активна'); 
+                }, 3000);
             }
         }
 
@@ -460,22 +546,23 @@
             const title = document.getElementById('resultTitle');
             const date = document.getElementById('resultDate');
             const days = document.getElementById('resultDays');
+            const gtinEl = document.getElementById('resultGtin');
             
             const dateStr = item.date.toLocaleDateString('ru-RU');
-            const today = new Date();
-            const diffDays = Math.ceil((item.date - today) / (1000 * 60 * 60 * 24));
             
             color.className = 'result-color ' + item.status.class;
             color.textContent = item.status.emoji;
             title.textContent = item.status.label;
-            date.textContent = 'Срок: ' + dateStr;
-            days.textContent = 'Осталось: ' + diffDays + ' дн.';
+            date.textContent = 'Срок: ' + dateStr + ' (из ' + item.source + ')';
+            days.textContent = 'Осталось: ' + item.status.days + ' дн.';
+            gtinEl.textContent = item.gtin ? 'GTIN: ' + item.gtin : '';
             
             popup.classList.add('show');
         }
 
         function closeResult() {
             document.getElementById('resultPopup').classList.remove('show');
+            lastScannedCode = null; // Сброс для повторного сканирования
         }
 
         function updateStats() {
@@ -486,6 +573,65 @@
             document.getElementById('totalCount').textContent = total;
             document.getElementById('expiredCount').textContent = expired;
             document.getElementById('warningCount').textContent = warning;
+        }
+
+        // Ручной ввод срока годности
+        function openManual() {
+            document.getElementById('overlayBg').classList.add('show');
+            document.getElementById('manualModal').classList.add('show');
+        }
+
+        function closeManual() {
+            document.getElementById('overlayBg').classList.remove('show');
+            document.getElementById('manualModal').classList.remove('show');
+        }
+
+        function saveManual() {
+            const gtin = document.getElementById('manualGtin').value.trim();
+            const dateStr = document.getElementById('manualDate').value.trim();
+            
+            if (!gtin || !dateStr) {
+                alert('Заполните оба поля!');
+                return;
+            }
+            
+            // Проверка формата даты
+            const dateMatch = dateStr.match(/^(\d{2})\.(\d{2})\.(\d{4})$/);
+            if (!dateMatch) {
+                alert('Неверный формат даты! Используйте ДД.ММ.ГГГГ');
+                return;
+            }
+            
+            const day = parseInt(dateMatch[1]);
+            const month = parseInt(dateMatch[2]) - 1;
+            const year = parseInt(dateMatch[3]);
+            const expDate = new Date(year, month, day);
+            
+            // Сохраняем в локальную базу
+            gtinDatabase[gtin] = dateStr;
+            localStorage.setItem('gtinDatabase', JSON.stringify(gtinDatabase));
+            
+            // Показываем результат
+            const status = getColorStatus(expDate);
+            const item = { 
+                code: 'Ручной ввод: ' + gtin, 
+                gtin: gtin,
+                date: expDate, 
+                status: status, 
+                source: 'ручной ввод',
+                time: new Date() 
+            };
+            scannedItems.push(item);
+            showResult(item);
+            updateStats();
+            
+            closeManual();
+            
+            // Очистка полей
+            document.getElementById('manualGtin').value = '';
+            document.getElementById('manualDate').value = '';
+            
+            showStatus('✅ Сохранено в базу!');
         }
 
         window.addEventListener('beforeunload', () => { if (isScanning) stopScanning(); });
