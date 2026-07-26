@@ -31,8 +31,8 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 280px;
-            height: 280px;
+            width: 200px;
+            height: 200px;
             pointer-events: none;
             z-index: 10;
         }
@@ -44,21 +44,21 @@
             right: 0;
             bottom: 0;
             border: 3px solid rgba(255, 255, 255, 0.8);
-            border-radius: 20px;
+            border-radius: 15px;
             box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
         }
         
         .scan-corner {
             position: absolute;
-            width: 40px;
-            height: 40px;
+            width: 30px;
+            height: 30px;
             border: 4px solid #4caf50;
         }
         
-        .scan-corner.top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 15px 0 0 0; }
-        .scan-corner.top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; border-radius: 0 15px 0 0; }
-        .scan-corner.bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; border-radius: 0 0 0 15px; }
-        .scan-corner.bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; border-radius: 0 0 15px 0; }
+        .scan-corner.top-left { top: -2px; left: -2px; border-right: none; border-bottom: none; border-radius: 10px 0 0 0; }
+        .scan-corner.top-right { top: -2px; right: -2px; border-left: none; border-bottom: none; border-radius: 0 10px 0 0; }
+        .scan-corner.bottom-left { bottom: -2px; left: -2px; border-right: none; border-top: none; border-radius: 0 0 0 10px; }
+        .scan-corner.bottom-right { bottom: -2px; right: -2px; border-left: none; border-top: none; border-radius: 0 0 10px 0; }
         
         .scan-line {
             position: absolute;
@@ -71,8 +71,8 @@
         }
         
         @keyframes scan {
-            0%, 100% { transform: translateY(-100px); opacity: 0; }
-            50% { transform: translateY(100px); opacity: 1; }
+            0%, 100% { transform: translateY(-80px); opacity: 0; }
+            50% { transform: translateY(80px); opacity: 1; }
         }
         
         .controls {
@@ -89,10 +89,10 @@
         
         .action-btn {
             flex: 1;
-            padding: 18px;
+            padding: 15px;
             border: none;
             border-radius: 12px;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             color: white;
@@ -101,6 +101,8 @@
         
         .btn-start { background: #4caf50; }
         .btn-stop { background: #f44336; }
+        .btn-zoom { background: #2196f3; }
+        .btn-flash { background: #ff9800; }
         
         .status-bar {
             position: fixed;
@@ -210,6 +212,29 @@
             z-index: 100;
             text-align: center;
         }
+        
+        .zoom-controls {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .zoom-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
@@ -224,11 +249,11 @@
         <div class="scan-line"></div>
     </div>
     
-    <div class="status-bar" id="statusBar">Нажмите "Включить камеру" для начала сканирования</div>
+    <div class="status-bar" id="statusBar">Нажмите "Включить камеру"</div>
     
     <div class="hint" id="hint" style="display: none;">
-        Наведите камеру на DataMatrix код<br>
-        Держите на расстоянии 15-25 см
+        📏 Держите 10-15 см от кода<br>
+        💡 Включите вспышку для лучшего результата
     </div>
     
     <div class="stats-panel" id="statsPanel">
@@ -246,6 +271,11 @@
         </div>
     </div>
     
+    <div class="zoom-controls" id="zoomControls" style="display: none;">
+        <button class="zoom-btn" onclick="changeZoom(0.5)">+</button>
+        <button class="zoom-btn" onclick="changeZoom(-0.5)">−</button>
+    </div>
+    
     <div class="result-popup" id="resultPopup">
         <div class="result-color" id="resultColor"></div>
         <div class="result-title" id="resultTitle"></div>
@@ -255,13 +285,16 @@
     </div>
     
     <div class="controls">
-        <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()">📷 Включить камеру</button>
+        <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()">📷 Включить</button>
+        <button class="action-btn btn-flash" id="flashBtn" onclick="toggleFlash()" style="display: none;">💡 Вспышка</button>
     </div>
 
     <script>
         let html5QrcodeScanner;
         let isScanning = false;
         let scannedItems = [];
+        let currentZoom = 1;
+        let isFlashOn = false;
 
         function showStatus(message) {
             document.getElementById('statusBar').textContent = message;
@@ -286,7 +319,7 @@
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
             if (diffDays <= 0) return { color: 'red', label: '🔴 Просрочен', emoji: '', class: 'red' };
-            else if (diffDays <= 2) return { color: 'yellow', label: '⚠️ Истекает', emoji: '⚠️', class: 'yellow' };
+            else if (diffDays <= 2) return { color: 'yellow', label: '️ Истекает', emoji: '⚠️', class: 'yellow' };
             else return { color: 'green', label: '🟢 Нормально', emoji: '✅', class: 'green' };
         }
 
@@ -308,26 +341,28 @@
             
             try {
                 isScanning = true;
-                document.getElementById('startBtn').textContent = '⏹️ Выключить';
+                document.getElementById('startBtn').textContent = '️ Выключить';
                 document.getElementById('startBtn').classList.remove('btn-start');
                 document.getElementById('startBtn').classList.add('btn-stop');
                 document.getElementById('scanOverlay').style.display = 'block';
                 document.getElementById('hint').style.display = 'block';
                 document.getElementById('statsPanel').classList.add('show');
+                document.getElementById('zoomControls').style.display = 'flex';
+                document.getElementById('flashBtn').style.display = 'block';
                 
                 html5QrcodeScanner = new Html5Qrcode("reader");
                 
                 const config = { 
-                    fps: 15,
-                    qrbox: { width: 280, height: 280 },
+                    fps: 20,
+                    qrbox: { width: 200, height: 200 },
                     aspectRatio: 1.0,
                     disableFlip: false,
                     videoConstraints: {
                         facingMode: 'environment',
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 },
-                        focusMode: 'continuous',
-                        zoom: 1.5
+                        width: { ideal: 2560 },
+                        height: { ideal: 1440 },
+                        focusMode: 'macro',
+                        advanced: [{ zoom: currentZoom }]
                     }
                 };
                 
@@ -338,12 +373,12 @@
                     onScanFailure
                 );
                 
-                showStatus('✅ Камера активна. Наведите на код');
+                showStatus('✅ Камера активна. Держите 10-15 см');
                 
             } catch (err) {
                 console.error('Ошибка:', err);
                 isScanning = false;
-                document.getElementById('startBtn').textContent = '📷 Включить камеру';
+                document.getElementById('startBtn').textContent = '📷 Включить';
                 showStatus('❌ Ошибка: ' + err.message);
             }
         }
@@ -356,13 +391,42 @@
                     html5QrcodeScanner = null;
                 });
             }
-            document.getElementById('startBtn').textContent = '📷 Включить камеру';
+            document.getElementById('startBtn').textContent = '📷 Включить';
             document.getElementById('startBtn').classList.remove('btn-stop');
             document.getElementById('startBtn').classList.add('btn-start');
             document.getElementById('scanOverlay').style.display = 'none';
             document.getElementById('hint').style.display = 'none';
             document.getElementById('statsPanel').classList.remove('show');
+            document.getElementById('zoomControls').style.display = 'none';
+            document.getElementById('flashBtn').style.display = 'none';
             showStatus('Камера выключена');
+        }
+
+        function changeZoom(delta) {
+            currentZoom += delta;
+            if (currentZoom < 1) currentZoom = 1;
+            if (currentZoom > 3) currentZoom = 3;
+            showStatus(`🔍 Зум: ${currentZoom.toFixed(1)}x`);
+            
+            if (html5QrcodeScanner && html5QrcodeScanner.getRunningTrackCapabilities) {
+                const capabilities = html5QrcodeScanner.getRunningTrackCapabilities();
+                if (capabilities.zoom) {
+                    html5QrcodeScanner.applyVideoConstraints({
+                        advanced: [{ zoom: currentZoom }]
+                    });
+                }
+            }
+        }
+
+        function toggleFlash() {
+            isFlashOn = !isFlashOn;
+            document.getElementById('flashBtn').textContent = isFlashOn ? '💡 Выключить' : '💡 Вспышка';
+            
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.applyVideoConstraints({
+                    advanced: [{ torch: isFlashOn }]
+                });
+            }
         }
 
         function onScanSuccess(decodedText, decodedResult) {
@@ -383,8 +447,8 @@
                     else navigator.vibrate(50);
                 }
             } else {
-                showStatus('📦 Код распознан, но дата не найдена');
-                setTimeout(() => { showStatus('✅ Камера активна. Наведите на код'); }, 3000);
+                showStatus('📦 Код: ' + decodedText.substring(0, 50));
+                setTimeout(() => { showStatus('✅ Камера активна'); }, 3000);
             }
         }
 
