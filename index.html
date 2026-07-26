@@ -12,11 +12,15 @@
             background: #000;
             overflow: hidden;
             height: 100vh;
-            will-change: transform;
         }
         
         #reader { width: 100vw; height: 100vh; position: relative; }
-        #reader video { width: 100% !important; height: 100% !important; object-fit: cover; }
+        #reader video { 
+            width: 100% !important; 
+            height: 100% !important; 
+            object-fit: cover;
+            filter: contrast(1.3) brightness(1.1);
+        }
         
         .scan-overlay {
             position: absolute;
@@ -27,7 +31,6 @@
             height: 150px;
             pointer-events: none;
             z-index: 10;
-            will-change: transform;
         }
         
         .scan-frame {
@@ -54,8 +57,7 @@
             top: 50%; left: 10%; right: 10%;
             height: 2px;
             background: #4caf50;
-            animation: scan 1.5s ease-in-out infinite;
-            will-change: transform;
+            animation: scan 1s ease-in-out infinite;
         }
         @keyframes scan {
             0%, 100% { transform: translateY(-60px); }
@@ -414,7 +416,7 @@
     </div>
     
     <div class="controls">
-        <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()">📷 Включить</button>
+        <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()"> Включить</button>
         <button class="action-btn btn-flash" id="flashBtn" onclick="toggleFlash()" style="display: none;">💡</button>
         <button class="action-btn btn-manual" id="manualBtn" onclick="openManual()" style="display: none;">✏️</button>
     </div>
@@ -438,7 +440,7 @@
         <h3>💾 База данных товаров</h3>
         <div id="dbViewContent"></div>
         <div class="db-view-buttons">
-            <button class="btn-clear-db" onclick="clearDatabase()">️ Очистить всё</button>
+            <button class="btn-clear-db" onclick="clearDatabase()">🗑️ Очистить всё</button>
             <button class="btn-close-db" onclick="closeDbView()">Закрыть</button>
         </div>
         <div class="db-import-export">
@@ -451,7 +453,6 @@
     </div>
 
     <script>
-        // Кэширование DOM элементов для производительности
         const DOM = {
             reader: document.getElementById('reader'),
             scanOverlay: document.getElementById('scanOverlay'),
@@ -525,7 +526,6 @@
         }
 
         function parseDataMatrix(rawData) {
-            // Оптимизированный парсинг - ищем только нужные теги
             const match17 = rawData.match(/17(\d{6})/);
             if (match17) {
                 const dateStr = match17[1];
@@ -546,7 +546,6 @@
                 }
             }
             
-            // Поиск в базе
             const rawGtin = extractGTIN(rawData);
             if (rawGtin) {
                 const normalizedGtin = normalizeGTIN(rawGtin);
@@ -572,9 +571,9 @@
             const diffTime = expirationDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            if (diffDays <= 0) return { color: 'red', label: '🔴 Просрочен', emoji: '🔴', class: 'red', days: diffDays };
+            if (diffDays <= 0) return { color: 'red', label: ' Просрочен', emoji: '', class: 'red', days: diffDays };
             else if (diffDays <= 2) return { color: 'yellow', label: '⚠️ Истекает', emoji: '⚠️', class: 'yellow', days: diffDays };
-            else return { color: 'green', label: ' Нормально', emoji: '✅', class: 'green', days: diffDays };
+            else return { color: 'green', label: '🟢 Нормально', emoji: '✅', class: 'green', days: diffDays };
         }
 
         async function toggleScan() {
@@ -584,11 +583,11 @@
 
         async function startScanning() {
             if (typeof Html5Qrcode === 'undefined') {
-                showStatus('️ Библиотека не загружена');
+                showStatus('⚠️ Библиотека не загружена');
                 return;
             }
             
-            showStatus(' Запуск...');
+            showStatus('🚀 Запуск...');
             
             try {
                 isScanning = true;
@@ -619,8 +618,9 @@
                 
                 html5QrcodeScanner = new Html5Qrcode("reader");
                 
+                // ОПТИМИЗИРОВАННЫЕ НАСТРОЙКИ ДЛЯ СКОРОСТИ
                 const config = { 
-                    fps: 30,
+                    fps: 60,
                     qrbox: { width: 150, height: 150 },
                     aspectRatio: 1.0,
                     disableFlip: false,
@@ -629,9 +629,9 @@
                     ],
                     videoConstraints: {
                         facingMode: 'environment',
-                        width: { ideal: 1920 },
-                        height: { ideal: 1080 },
-                        frameRate: { ideal: 30 },
+                        width: { ideal: 640 },
+                        height: { ideal: 480 },
+                        frameRate: { ideal: 60 },
                         focusMode: 'continuous',
                         advanced: [
                             { zoom: currentZoom }
@@ -710,10 +710,9 @@
         }
 
         function onScanSuccess(decodedText, decodedResult) {
-            // Защита от дубликатов
             if (lastScannedCode === decodedText) return;
             lastScannedCode = decodedText;
-            setTimeout(() => { lastScannedCode = null; }, 1000);
+            setTimeout(() => { lastScannedCode = null; }, 500);
             
             const gtin = extractGTIN(decodedText);
             const parsed = parseDataMatrix(decodedText);
@@ -750,7 +749,7 @@
                         const dbCount = Object.keys(gtinDatabase).length;
                         showStatus(`✅ Сканируйте (база: ${dbCount})`);
                     }
-                }, 1500);
+                }, 1000);
             }
         }
 
@@ -770,7 +769,7 @@
             clearTimeout(resultTimeout);
             resultTimeout = setTimeout(() => {
                 DOM.resultNotification.classList.remove('show');
-            }, 1500);
+            }, 1000);
         }
 
         function updateStats() {
@@ -1006,10 +1005,8 @@
             closeDbView();
         });
 
-        // Клик по индикатору базы
         DOM.dbIndicator.addEventListener('click', viewDatabase);
 
-        // Инициализация
         updateDbIndicator();
 
         window.addEventListener('beforeunload', () => { if (isScanning) stopScanning(); });
