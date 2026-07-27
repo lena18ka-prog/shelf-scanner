@@ -19,7 +19,7 @@
             width: 100% !important; 
             height: 100% !important; 
             object-fit: cover;
-            filter: contrast(1.3) brightness(1.1);
+            filter: contrast(1.4) brightness(1.15) saturate(1.2);
         }
         
         .scan-overlay {
@@ -90,6 +90,7 @@
         .btn-stop { background: #f44336; }
         .btn-flash { background: #ff9800; }
         .btn-manual { background: #9c27b0; }
+        .btn-focus { background: #2196f3; }
         
         .status-bar {
             position: fixed;
@@ -342,6 +343,7 @@
         }
         .btn-export { background: #2196f3; }
         .btn-import { background: #4caf50; }
+        .btn-backup { background: #ff9800; }
         
         .timer {
             position: fixed;
@@ -358,6 +360,34 @@
             margin-top: 40px;
         }
         .timer.show { display: block; }
+        
+        .backup-warning {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            padding: 20px;
+            border-radius: 12px;
+            z-index: 400;
+            display: none;
+            max-width: 90%;
+            text-align: center;
+        }
+        .backup-warning.show { display: block; }
+        .backup-warning h3 { color: #856404; margin-bottom: 10px; }
+        .backup-warning p { color: #856404; font-size: 14px; margin-bottom: 15px; }
+        .backup-warning button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .btn-backup-now { background: #ffc107; color: #000; }
+        .btn-skip-backup { background: #6c757d; color: white; }
     </style>
 </head>
 <body>
@@ -379,7 +409,7 @@
     <div class="db-indicator" id="dbIndicator">💾 База: 0</div>
     
     <div class="hint" id="hint" style="display: none;">
-        📏 15-25 см | 💡 Вспышка
+        📏 10-15 см | 💡 Вспышка | 🎯 Касание = фокус
     </div>
     
     <div class="recent-list" id="recentList"></div>
@@ -416,15 +446,16 @@
     </div>
     
     <div class="controls">
-        <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()"> Включить</button>
+        <button class="action-btn btn-start" id="startBtn" onclick="toggleScan()">📷 Включить</button>
         <button class="action-btn btn-flash" id="flashBtn" onclick="toggleFlash()" style="display: none;">💡</button>
+        <button class="action-btn btn-focus" id="focusBtn" onclick="toggleMacroFocus()" style="display: none;">🎯</button>
         <button class="action-btn btn-manual" id="manualBtn" onclick="openManual()" style="display: none;">✏️</button>
     </div>
     
     <div class="overlay-bg" id="overlayBg"></div>
     
     <div class="manual-modal" id="manualModal">
-        <h3>✏️ Ввести срок годности</h3>
+        <h3>️ Ввести срок годности</h3>
         <div class="db-hint" id="dbHint">✅ Этот GTIN уже в базе!</div>
         <label>GTIN товара:</label>
         <input type="text" id="manualGtin" placeholder="0460060503352">
@@ -444,12 +475,20 @@
             <button class="btn-close-db" onclick="closeDbView()">Закрыть</button>
         </div>
         <div class="db-import-export">
-            <button class="btn-export" onclick="exportDatabase()">💾 Экспорт базы</button>
+            <button class="btn-backup" onclick="createBackup()">💾 Создать резервную копию</button>
+            <button class="btn-export" onclick="exportDatabase()"> Экспорт базы</button>
             <label class="btn-import">
-                📂 Импорт базы
+                 Импорт базы
                 <input type="file" accept=".json" onchange="importDatabase(event)" style="display: none;">
             </label>
         </div>
+    </div>
+    
+    <div class="backup-warning" id="backupWarning">
+        <h3>⚠️ Резервная копия не создана!</h3>
+        <p>База данных может быть потеряна при очистке кэша браузера. Создать резервную копию сейчас?</p>
+        <button class="btn-backup-now" onclick="createBackup()">Создать копию</button>
+        <button class="btn-skip-backup" onclick="skipBackup()">Пропустить</button>
     </div>
 
     <script>
@@ -470,6 +509,7 @@
             resultDays: document.getElementById('resultDays'),
             startBtn: document.getElementById('startBtn'),
             flashBtn: document.getElementById('flashBtn'),
+            focusBtn: document.getElementById('focusBtn'),
             manualBtn: document.getElementById('manualBtn'),
             overlayBg: document.getElementById('overlayBg'),
             manualModal: document.getElementById('manualModal'),
@@ -480,23 +520,29 @@
             manualDate: document.getElementById('manualDate'),
             totalCount: document.getElementById('totalCount'),
             expiredCount: document.getElementById('expiredCount'),
-            warningCount: document.getElementById('warningCount')
+            warningCount: document.getElementById('warningCount'),
+            backupWarning: document.getElementById('backupWarning')
         };
 
         let html5QrcodeScanner;
         let isScanning = false;
         let scannedItems = [];
-        let currentZoom = 1;
+        let currentZoom = 2; // Увеличенный зум по умолчанию
         let isFlashOn = false;
+        let isMacroMode = true; // Макро-режим включен по умолчанию
         let lastScannedCode = null;
         let timerInterval;
         let startTime;
         let resultTimeout;
         
         let gtinDatabase = {};
+        let hasBackup = false;
+        
         try {
             const saved = localStorage.getItem('gtinDatabase');
             if (saved) gtinDatabase = JSON.parse(saved);
+            const backupStatus = localStorage.getItem('hasBackup');
+            hasBackup = backupStatus === 'true';
         } catch(e) {}
         
         function normalizeGTIN(gtin) {
@@ -513,6 +559,13 @@
             DOM.dbIndicator.textContent = `💾 База: ${count}`;
             if (count > 0) DOM.dbIndicator.classList.add('show');
             else DOM.dbIndicator.classList.remove('show');
+            
+            // Показываем предупреждение если нет резервной копии
+            if (count > 0 && !hasBackup) {
+                setTimeout(() => {
+                    DOM.backupWarning.classList.add('show');
+                }, 2000);
+            }
         }
 
         function extractGTIN(rawData) {
@@ -571,7 +624,7 @@
             const diffTime = expirationDate - today;
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             
-            if (diffDays <= 0) return { color: 'red', label: ' Просрочен', emoji: '', class: 'red', days: diffDays };
+            if (diffDays <= 0) return { color: 'red', label: '🔴 Просрочен', emoji: '🔴', class: 'red', days: diffDays };
             else if (diffDays <= 2) return { color: 'yellow', label: '⚠️ Истекает', emoji: '⚠️', class: 'yellow', days: diffDays };
             else return { color: 'green', label: '🟢 Нормально', emoji: '✅', class: 'green', days: diffDays };
         }
@@ -596,7 +649,7 @@
                 updateRecentList();
                 updateDbIndicator();
                 
-                DOM.startBtn.textContent = '⏹️';
+                DOM.startBtn.textContent = '️';
                 DOM.startBtn.classList.remove('btn-start');
                 DOM.startBtn.classList.add('btn-stop');
                 DOM.scanOverlay.style.display = 'block';
@@ -605,6 +658,7 @@
                 DOM.recentList.classList.add('show');
                 DOM.zoomControls.style.display = 'flex';
                 DOM.flashBtn.style.display = 'block';
+                DOM.focusBtn.style.display = 'block';
                 DOM.manualBtn.style.display = 'block';
                 DOM.timer.classList.add('show');
                 
@@ -618,7 +672,7 @@
                 
                 html5QrcodeScanner = new Html5Qrcode("reader");
                 
-                // ОПТИМИЗИРОВАННЫЕ НАСТРОЙКИ ДЛЯ СКОРОСТИ
+                // ОПТИМИЗИРОВАННЫЕ НАСТРОЙКИ ДЛЯ МАКРО-РЕЖИМА
                 const config = { 
                     fps: 60,
                     qrbox: { width: 150, height: 150 },
@@ -632,9 +686,10 @@
                         width: { ideal: 640 },
                         height: { ideal: 480 },
                         frameRate: { ideal: 60 },
-                        focusMode: 'continuous',
+                        focusMode: isMacroMode ? 'macro' : 'continuous',
                         advanced: [
-                            { zoom: currentZoom }
+                            { zoom: currentZoom },
+                            { focusMode: isMacroMode ? 'macro' : 'continuous' }
                         ]
                     }
                 };
@@ -647,7 +702,7 @@
                 );
                 
                 const dbCount = Object.keys(gtinDatabase).length;
-                showStatus(`✅ Сканируйте (база: ${dbCount})`);
+                showStatus(`✅ Сканируйте (база: ${dbCount}) |  Макро`);
                 
             } catch (err) {
                 console.error('Ошибка:', err);
@@ -677,9 +732,29 @@
             DOM.recentList.classList.remove('show');
             DOM.zoomControls.style.display = 'none';
             DOM.flashBtn.style.display = 'none';
+            DOM.focusBtn.style.display = 'none';
             DOM.manualBtn.style.display = 'none';
             DOM.timer.classList.remove('show');
             showStatus('Остановлено');
+        }
+
+        function toggleMacroFocus() {
+            isMacroMode = !isMacroMode;
+            const btn = DOM.focusBtn;
+            
+            if (isMacroMode) {
+                btn.style.background = '#4caf50';
+                showStatus('🎯 Макро-режим ВКЛ');
+            } else {
+                btn.style.background = '#2196f3';
+                showStatus('🎯 Обычный фокус');
+            }
+            
+            // Перезапускаем сканер с новыми настройками
+            if (isScanning) {
+                stopScanning();
+                setTimeout(() => startScanning(), 500);
+            }
         }
 
         function changeZoom(delta) {
@@ -895,6 +970,8 @@
             
             try {
                 localStorage.setItem('gtinDatabase', JSON.stringify(gtinDatabase));
+                // Автоматически создаем резервную копию
+                autoBackup();
             } catch(e) {
                 alert('Ошибка сохранения!');
                 return;
@@ -968,6 +1045,46 @@
             }
         }
 
+        function createBackup() {
+            const dataStr = JSON.stringify(gtinDatabase, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `gtin-backup-${new Date().toISOString().slice(0,10)}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            
+            hasBackup = true;
+            localStorage.setItem('hasBackup', 'true');
+            
+            DOM.backupWarning.classList.remove('show');
+            showStatus('✅ Резервная копия создана!');
+        }
+
+        function autoBackup() {
+            // Автоматически сохраняем резервную копию в localStorage
+            try {
+                localStorage.setItem('gtinDatabaseBackup', JSON.stringify(gtinDatabase));
+                hasBackup = true;
+                localStorage.setItem('hasBackup', 'true');
+            } catch(e) {}
+        }
+
+        function restoreFromBackup() {
+            try {
+                const backup = localStorage.getItem('gtinDatabaseBackup');
+                if (backup) {
+                    gtinDatabase = JSON.parse(backup);
+                    localStorage.setItem('gtinDatabase', JSON.stringify(gtinDatabase));
+                    updateDbIndicator();
+                    showStatus('✅ База восстановлена из резервной копии!');
+                    return true;
+                }
+            } catch(e) {}
+            return false;
+        }
+
         function exportDatabase() {
             const dataStr = JSON.stringify(gtinDatabase, null, 2);
             const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -990,6 +1107,7 @@
                     const imported = JSON.parse(e.target.result);
                     gtinDatabase = { ...gtinDatabase, ...imported };
                     localStorage.setItem('gtinDatabase', JSON.stringify(gtinDatabase));
+                    autoBackup();
                     updateDbIndicator();
                     viewDatabase();
                     showStatus(`✅ Импортировано! База: ${Object.keys(gtinDatabase).length}`);
@@ -1000,12 +1118,23 @@
             reader.readAsText(file);
         }
 
+        function skipBackup() {
+            DOM.backupWarning.classList.remove('show');
+        }
+
         DOM.overlayBg.addEventListener('click', () => {
             closeManual();
             closeDbView();
         });
 
         DOM.dbIndicator.addEventListener('click', viewDatabase);
+
+        // Проверяем резервную копию при загрузке
+        if (Object.keys(gtinDatabase).length === 0) {
+            if (restoreFromBackup()) {
+                showStatus('✅ База восстановлена!');
+            }
+        }
 
         updateDbIndicator();
 
